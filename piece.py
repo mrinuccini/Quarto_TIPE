@@ -52,3 +52,5 @@ class Piece:
             str += " grande"
         
         return str
+
+print("test")
