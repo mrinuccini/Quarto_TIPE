@@ -16,18 +16,6 @@ class Piece:
         self.dessus = dessus
         self.taille = taille
 
-    def comp(self, L):
-        """Compare la pièce avec p2"""
-        if all(self.couleur == p.couleur for p in L):
-            return True
-        if all(self.forme == p.forme for p in L):
-            return True
-        if all(self.dessus == p.dessus for p in L):
-            return True
-        if all(self.taille == p.taille for p in L):
-            return True
-        return False
-
     def __repr__(self):
         "Affichage de la pièce"
         str = "pièce"
@@ -53,4 +41,25 @@ class Piece:
         
         return str
 
-print("test")
+
+def comp(L):
+    """Compare une liste de pièces"""
+    assert(L!=[])
+    assert(type(L)==list)
+    if all(p.couleur == L[0].couleur for p in L[1:]):
+            return True
+    if all(p.forme == L[0].forme for p in L[1:]):
+            return True
+    if all(p.dessus == L[0].dessus for p in L[1:]):
+            return True
+    if all(p.taille == L[0].taille for p in L[1:]):
+            return True
+    return False
+
+
+def test():
+     p1 = Piece(1,1,1,1)
+     p2 = Piece(1,0,1,0)
+     p3 = Piece(1,0,0,0)
+     p4 = Piece(1,1,0,1)
+     print(comp([p1,p2,p3,p4]))
