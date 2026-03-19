@@ -9,6 +9,7 @@ class Game:
     def generer_pioche(self):
         "Génère la pioche du jeu"
         self.pioche = {}
+        self.plateau = Plateau(4,4)
 
         for i in range(2):
             for j in range(2):
