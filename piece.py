@@ -12,8 +12,15 @@ class Piece:
         assert(dessus in (0,1))
         assert(taille in (0,1))
         self.couleur = couleur
+        self.forme = forme
+        self.dessus = dessus
+        self.taille = taille
+
+    """def __eq__(self, p2):
+        """Compare""""""
 
     def __repr__(self):
+        "Affichage de la pièce"
         str = "pièce"
         if self.couleur == 0:
             str += " blanche"
@@ -30,7 +37,7 @@ class Piece:
         else:
             str += " creusée"
 
-        if self.forme == 0:
+        if self.taille == 0:
             str += " petite"
         else:
             str += " grande"
