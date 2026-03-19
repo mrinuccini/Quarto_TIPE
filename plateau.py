@@ -1,4 +1,5 @@
-from piece import Piece
+from piece import Piece, comp
+from toolbox import convert_matrice
 
 class Plateau:
     arr = []
@@ -15,6 +16,11 @@ class Plateau:
         self.arr = [[None for i in range(0, x)] for i in range(0, y)]
         self.x = x
         self.y = y
+
+    def reinitialiser(self) -> None:
+        for x in range(0, self.x):
+            for y in range(0, self.y):
+                self.arr[y][x] = None
 
     def recuperer_piece(self, x:int, y: int) -> Piece:
         """
@@ -37,6 +43,30 @@ class Plateau:
             return
 
         self.arr[y][x] = piece
+
+    def verifier_alignements(self) -> bool:
+        """
+            Vérifie si le plateau contient un aligments (mais ne précise pas où se trouve cet alignement !)
+        """
+        # Vérification des lignes
+        has_line = any(comp(self.arr[i]) for i in range (self.x))
+
+        # Vérifications des colonnes
+        columns = convert_matrice(self.arr)
+        has_column = any(comp(columns[i]) for i in range(self.x))
+
+        # Vérifiction diagonales
+        diag = False
+
+        diagonale1 = []
+        diagonale2 = []
+        for i in range (0, self.x):
+            diagonale1.append(self.arr[i][i])
+            diagonale2.append(self.arr[self.x - i - 1][self.x - i - 1])
+
+        diag = comp(diagonale1) or comp(diagonale2)
+        
+        return diag or has_line or has_column
 
     def __repr__(self) -> str:
         out = ""
