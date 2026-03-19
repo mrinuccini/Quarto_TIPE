@@ -1,6 +1,6 @@
 class Piece:
     "Instanciation d'une pièce de jeu"
-    def __init__(self, couleur, forme, dessus, taille):
+    def __init__(self, couleur: int, forme: int, dessus: int, taille:int) -> None:
         """Paramètres :
                 couleur : 0 ou 1, couleur de la pièce (0=blanc, 1=noir)
                 forme : 0 ou 1, forme de la pièce (0=carré, 1=rond)
@@ -16,9 +16,15 @@ class Piece:
         self.dessus = dessus
         self.taille = taille
 
-    def __eq__(self, p2):
+    def comp(self, L):
         """Compare la pièce avec p2"""
-        if self.forme == p2.forme:
+        if all(self.couleur == p.couleur for p in L):
+            return True
+        if all(self.forme == p.forme for p in L):
+            return True
+        if all(self.dessus == p.dessus for p in L):
+            return True
+        if all(self.taille == p.taille for p in L):
             return True
         return False
 
