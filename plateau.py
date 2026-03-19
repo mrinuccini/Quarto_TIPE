@@ -6,15 +6,36 @@ class Plateau:
     y = 0
 
     def __init__(self, x: int, y: int) -> None:
+        """
+            Créé un nouveau tableau de taille (x, y) avec toutes les pièces sans caractéristiques
+        """
         assert(x > 0)
         assert(y > 0)
 
-        self.arr = [[Piece(0, 0, 0, 0) for i in range(o, x)] for i in range(0, y)]
+        self.arr = [[None for i in range(0, x)] for i in range(0, y)]
         self.x = x
         self.y = y
 
     def recuperer_piece(self, x:int, y: int) -> Piece:
-        assert(0 <= x <= self.x)
-        assert(0 <= y <= self.y)
+        """
+            Récupère la pièce à la position (x, y)
+        """
+        assert(0 <= x < self.x)
+        assert(0 <= y < self.y)
 
-        return arr[y, x]
+        return self.arr[y][x]
+
+    def placer_piece(self, x: int, y: int, piece: Piece) -> None:
+        """
+            
+        """
+
+    def __repr__(self) -> str:
+        out = ""
+        for y in range(0, self.y):
+            for x in range(0, self.x):
+                out += repr(self.arr[y][x])
+                out += " "
+            out += "\n"
+
+        return out
