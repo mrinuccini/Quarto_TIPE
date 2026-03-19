@@ -12,3 +12,27 @@ class Piece:
         assert(dessus in (0,1))
         assert(taille in (0,1))
         self.couleur = couleur
+
+    def __repr__(self):
+        str = "pièce"
+        if self.couleur == 0:
+            str += " blanche"
+        else:
+            str += " noire"
+
+        if self.forme == 0:
+            str += " carrée"
+        else:
+            str += " ronde"
+
+        if self.dessus == 0:
+            str += " lisse"
+        else:
+            str += " creusée"
+
+        if self.forme == 0:
+            str += " petite"
+        else:
+            str += " grande"
+        
+        return str
