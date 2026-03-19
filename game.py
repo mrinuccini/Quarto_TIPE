@@ -3,13 +3,16 @@ from plateau import Plateau
 
 class Game:
     def __init__(self, x=4, y=4):
+        #Plateau
+        self.plateau = Plateau(4,4)
+        print(self.plateau)
+        #Pioche
         self.generer_pioche()
         self.afficher_pioche()
 
     def generer_pioche(self):
         "Génère la pioche du jeu"
         self.pioche = {}
-        self.plateau = Plateau(4,4)
 
         for i in range(2):
             for j in range(2):
