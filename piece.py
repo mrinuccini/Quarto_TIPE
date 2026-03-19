@@ -16,8 +16,11 @@ class Piece:
         self.dessus = dessus
         self.taille = taille
 
-    """def __eq__(self, p2):
-        """Compare""""""
+    def __eq__(self, p2):
+        """Compare la pièce avec p2"""
+        if self.forme == p2.forme:
+            return True
+        return False
 
     def __repr__(self):
         "Affichage de la pièce"
