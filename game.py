@@ -1,17 +1,20 @@
 from piece import Piece
 from plateau import Plateau
 
+
 class Game:
+    #Instanciation du jeu
     def __init__(self, x=4, y=4):
         #Plateau
-        self.plateau = Plateau(4,4)
-        print(self.plateau)
+        self.plateau = Plateau(x,y)
+        self.afficher_plateau()
+
         #Pioche
         self.generer_pioche()
         self.afficher_pioche()
 
     def generer_pioche(self):
-        "Génère la pioche du jeu"
+        "Génère la pioche du jeu (initialement remplie de toutes les pièces)"
         self.pioche = {}
 
         for i in range(2):
@@ -24,6 +27,10 @@ class Game:
         print("PIOCHE ⛏️\n"+"-"*70)
         for key in self.pioche.keys():
             print(f"{key} : {self.pioche[key]}")
+
+    def afficher_plateau(self):
+        print("PLATEAU\n"+"-"*70)
+        print(self.plateau)
 
 
 game = Game()

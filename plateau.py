@@ -6,7 +6,7 @@ class Plateau:
     x = 0
     y = 0
 
-    def __init__(self, x: int, y: int) -> None:
+    def __init__(self, x=4, y=4) -> None:
         """
             Créé un nouveau tableau de taille (x, y) avec toutes les pièces sans caractéristiques
         """
