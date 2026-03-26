@@ -4,19 +4,24 @@ from plateau import Plateau
 
 class Game:
     #Instanciation du jeux
-    def __init__(self, x=4, y=4):
+    def __init__(self, n=1, x=4, y=4):
+        """Paramètres:
+                n : entier naturel non nul, nombre de parties à jouer
+                x : entier naturel non nul, nombre de colonnes du plateau
+                y : entier naturel non nul, nombre de lignes du plateau
+        """
+        #Assertions
+        assert(type(n)==int and n>0)
+        assert(type(x)==type(y)==int and x>0 and y>0)
+
+        self.parties_restantes = n
         self.x, self.y = x, y
-        self.game_loop() #On lance le jeu
+        self.game_launch() #On lance le jeu
 
     def init_var(self):
         "Initialise les différentes variables / instanciations du jeu"
-        #Plateau
-        self.plateau = Plateau(self.x,self.y)
-        self.afficher_plateau()
-
-        #Pioche
-        self.generer_pioche()
-        self.afficher_pioche()
+        self.plateau = Plateau(self.x,self.y) #Plateau
+        self.generer_pioche() #Pioche
 
     def generer_pioche(self):
         "Génère la pioche du jeu (initialement remplie de toutes les pièces)"
@@ -25,13 +30,13 @@ class Game:
             self.pioche[i] = Piece((i//8)%2, (i//4)%2,(i//2)%2, i%2)
     
     def afficher_pioche(self):
-        print("PIOCHE ⛏️\n"+"-"*70)
+        print("PIOCHE ⛏️\n"+"-"*60)
         for key in self.pioche.keys():
             print(f"{key} : {self.pioche[key]}")
         print()
 
     def afficher_plateau(self):
-        print("PLATEAU\n"+"-"*70)
+        print("PLATEAU\n"+"-"*60)
         print(self.plateau)
         print()
 
@@ -67,11 +72,18 @@ class Game:
 
     def debut_tour(self, piece_idx=None):
         "Affichage des informations avant de jouer"
-        print(f"Tour du Joueur {self.joueur+1}")
+        print("/"*80+f"\nTour du Joueur {self.joueur+1}\n"+"-"*17)
         if piece_idx!=None:
             print(f"Pièce à jouer : {self.pioche[piece_idx]}")
         self.afficher_plateau()
         self.afficher_pioche()
+
+    def game_launch(self):
+        i = 1
+        print(f"PARTIE {i}\n" + "-"*9 + "\n")
+        while self.parties_restantes > 0:
+            self.game_loop()
+            self.parties_restantes -= 1
 
     def game_loop(self):
         "Boucle de jeu"
