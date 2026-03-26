@@ -72,7 +72,10 @@ class Plateau:
         out = ""
         for y in range(0, self.y):
             for x in range(0, self.x):
-                out += repr(self.arr[y][x])
+                if self.arr[y][x] == None:
+                    out+="ø"
+                else:
+                    out += repr(self.arr[y][x])
                 out += " | "
             out += "\n"
 
