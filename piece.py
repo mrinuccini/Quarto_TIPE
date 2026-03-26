@@ -1,3 +1,4 @@
+##Instanciation de la pièce de jeu
 class Piece:
     "Instanciation d'une pièce de jeu"
     def __init__(self, couleur: int, forme: int, dessus: int, taille:int) -> None:
@@ -17,33 +18,25 @@ class Piece:
         self.taille = taille
 
     def __repr__(self):
-        "Affichage de la pièce"
+        "Affichage de la pièce et de ses caractéristiques"
         str = "pièce"
-        if self.couleur == 0:
-            str += " blanche"
-        else:
-            str += " noire"
-
-        if self.forme == 0:
-            str += " carrée"
-        else:
-            str += " ronde"
-
-        if self.dessus == 0:
-            str += " lisse"
-        else:
-            str += " creusée"
-
-        if self.taille == 0:
-            str += " petite"
-        else:
-            str += " grande"
+        str += " blanche" if self.couleur == 0 else " noire"
+        str += " carrée" if self.forme == 0 else " ronde"
+        str += " lisse" if self.dessus == 0 else " lisse"
+        str += " petite" if self.taille == 0 else " grande"
         
         return str
 
 
+##Fonctions sur les pièces
 def comp(L):
-    """Compare une liste de pièces"""
+    """ Compare une liste de pièces, renvoie True si toutes les pièces ont 
+    au moins une caractéristique en commun
+    Paramètres :
+        L : liste de piece, non vide
+    Sortie :
+        booléen
+    """
     assert(L!=[])
     assert(type(L)==list)
 
@@ -62,6 +55,7 @@ def comp(L):
     return False
 
 
+##Tests
 def test():
      p1 = Piece(1,1,1,1)
      p2 = Piece(1,0,1,0)
