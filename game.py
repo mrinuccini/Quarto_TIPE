@@ -1,5 +1,6 @@
 from piece import Piece
 from plateau import Plateau
+from player import *
 
 
 class Game:
@@ -22,6 +23,7 @@ class Game:
         "Initialise les différentes variables / instanciations du jeu"
         self.plateau = Plateau(self.x,self.y) #Plateau
         self.generer_pioche() #Pioche
+        self.list_joueurs = [Joueur(), Joueur()]
 
     def generer_pioche(self):
         "Génère la pioche du jeu (initialement remplie de toutes les pièces)"
@@ -44,25 +46,12 @@ class Game:
 
     def ask_pioche(self):
         "Demande au joueur de sélectionner une pièce dans la pioche"
-        cond = True
-        while cond: #On ne s'arrête que quand le joueur a sélectionné une pièce valide
-            i = int(input("Veuillez choisir une pièce : "))
-            if i in self.pioche: #Si la pièce est disponible dans la pioche
-                cond = False
-            else:
-                print("Pièce indisponible, veuillez réessayer !")
+        i = self.list_joueurs[self.joueur_idx].choisir_piece(self.plateau, self.pioche)
         return i
 
-    def ask_place(self):
+    def ask_place(self, piece_idx):
         "Choix du placement de la pièce sur le plateau"
-        #Sélection de la position
-        cond = True
-        while cond: #On ne s'arrête que quand le joueur choisi une position valide
-            i = int(input("Veuillez choisir une position où placer la pièce : "))
-            row_idx = i % self.x
-            column_idx = i // self.x
-            if self.plateau.arr[column_idx][row_idx] == None:
-                cond = False
+        i = self.list_joueurs[self.joueur_idx].choisir_place(self.plateau, self.pioche, piece_idx)
         return i;
 
     def place(self, place_idx, piece_idx):
@@ -90,7 +79,7 @@ class Game:
                         (None s'il n'y en a aucune)
         """
         assert((type(piece_idx)==int and piece_idx>=0) or piece_idx==None)
-        print("/"*80 + f"\nTour du Joueur {self.joueur+1}\n" + "-"*17)
+        print("/"*80 + f"\nTour du Joueur {self.joueur_idx+1}\n" + "-"*17)
         if piece_idx != None:
             print(f"Pièce à jouer : {self.pioche[piece_idx]}")
         self.afficher_plateau()
@@ -111,7 +100,7 @@ class Game:
         self.init_var() #Initialisation des variables de jeu
 
         self.continuer = 100 #Condition d'arrêt
-        self.joueur = 0 #Joueur en train de jouer
+        self.joueur_idx = 0 #Joueur en train de jouer
         self.egalite = False
 
         #Choix initial de la pièce
@@ -120,10 +109,10 @@ class Game:
         #Lancement de la boucle de jeu
         while self.continuer>0:
             piece_idx = self.ask_pioche() #Choix de la future pièce à jouer
-            self.joueur = 1 - self.joueur #Changement de joueur
+            self.joueur_idx = 1 - self.joueur_idx #Changement de joueur
             print("\n")
             self.debut_tour(piece_idx) #Affichage des informations
-            place_idx = self.ask_place() #Choix du placement de la pièce
+            place_idx = self.ask_place(piece_idx) #Choix du placement de la pièce
             self.place(place_idx, piece_idx) #On place la pièce
             self.check() #On vérifie s'il y a victoire ou égalité
 
@@ -131,7 +120,7 @@ class Game:
         if self.egalite == True:
             print("Égalité, il ne reste plus aucune pice à jouer !")
         else:
-            print(f"Fin de partie, le joueur {self.joueur+1} a gagné !")
+            print(f"Fin de partie, le joueur {self.joueur_idx+1} a gagné !")
 
 
 game = Game()
