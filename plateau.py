@@ -73,7 +73,7 @@ class Plateau:
         for y in range(0, self.y):
             for x in range(0, self.x):
                 if self.arr[y][x] == None:
-                    out+="ø"
+                    out+=f"[#{x+y*self.x}]"
                 else:
                     out += repr(self.arr[y][x])
                 out += " | "
