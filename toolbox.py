@@ -1,5 +1,5 @@
 def convert_matrice(M):
-    """Intervertit les lignes et les colonnes de la matrice M"""
+    """ Intervertit les lignes et les colonnes de la matrice M """
     #Assertions
     assert(type(M)==list)
     assert(M!=[])
@@ -18,7 +18,6 @@ def convert_matrice(M):
         for i in range(n):
             line += [M[i][j]]
         M2 += [line]
-
     return M2
 
 
