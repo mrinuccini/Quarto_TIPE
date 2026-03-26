@@ -42,7 +42,7 @@ class Game:
         print(self.plateau)
         print()
 
-    def ask(self):
+    def ask_pioche(self):
         "Demande au joueur de sélectionner une pièce dans la pioche"
         cond = True
         while cond: #On ne s'arrête que quand le joueur a sélectionné une pièce valide
@@ -53,10 +53,8 @@ class Game:
                 print("Pièce indisponible, veuillez réessayer !")
         return i
 
-    def place(self, piece_idx):
-        "Placement de la pièce d'indice dans la pioche piece_idx sur le plateau"
-        assert(type(piece_idx) == int and piece_idx>=0)
-
+    def ask_place(self):
+        "Choix du placement de la pièce sur le plateau"
         #Sélection de la position
         cond = True
         while cond: #On ne s'arrête que quand le joueur choisi une position valide
@@ -65,7 +63,12 @@ class Game:
             column_idx = i // self.x
             if self.plateau.arr[column_idx][row_idx] == None:
                 cond = False
+        return i;
 
+    def place(self, place_idx, piece_idx):
+        """Placement de la pièce d'indice piece_idx dans la pioche à la position place_idx"""
+        row_idx = place_idx % self.x
+        column_idx = place_idx // self.x
         #Placement de la pièce
         self.plateau.arr[column_idx][row_idx] = self.pioche[piece_idx]
         del self.pioche[piece_idx]
@@ -116,12 +119,13 @@ class Game:
 
         #Lancement de la boucle de jeu
         while self.continuer>0:
-            piece_idx = self.ask()
+            piece_idx = self.ask_pioche() #Choix de la future pièce à jouer
             self.joueur = 1 - self.joueur #Changement de joueur
             print("\n")
             self.debut_tour(piece_idx) #Affichage des informations
-            self.place(piece_idx)
-            self.check()
+            place_idx = self.ask_place() #Choix du placement de la pièce
+            self.place(place_idx, piece_idx) #On place la pièce
+            self.check() #On vérifie s'il y a victoire ou égalité
 
             self.continuer -= 1
         if self.egalite == True:
