@@ -3,13 +3,13 @@ from plateau import Plateau
 
 
 class Game:
-    #Instanciation du jeu
+    #Instanciation du jeux
     def __init__(self, x=4, y=4):
-        self.x = x
-        self.y = y
-        self.init_var()
+        self.x, self.y = x, y
+        self.game_loop() #On lance le jeu
 
     def init_var(self):
+        "Initialise les différentes variables / instanciations du jeu"
         #Plateau
         self.plateau = Plateau(self.x,self.y)
         self.afficher_plateau()
@@ -18,18 +18,11 @@ class Game:
         self.generer_pioche()
         self.afficher_pioche()
 
-        #On lance la boucle de jeu
-        self.game_loop()
-
     def generer_pioche(self):
         "Génère la pioche du jeu (initialement remplie de toutes les pièces)"
         self.pioche = {}
-
-        for i in range(2):
-            for j in range(2):
-                for k in range(2):
-                    for l in range(2):
-                        self.pioche[i*8+j*4+k*2+l] = Piece(i,j,k,l)
+        for i in range(16):
+            self.pioche[i] = Piece((i//8)%2, (i//4)%2,(i//2)%2, i%2)
     
     def afficher_pioche(self):
         print("PIOCHE ⛏️\n"+"-"*70)
@@ -82,6 +75,9 @@ class Game:
 
     def game_loop(self):
         "Boucle de jeu"
+
+        self.init_var() #Initialisation des variables de jeu
+
         self.continuer = 100 #Condition d'arrêt
         self.joueur = 0 #Joueur en train de jouer
 

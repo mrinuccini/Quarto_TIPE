@@ -22,7 +22,7 @@ class Piece:
         str = "pièce"
         str += " blanche" if self.couleur == 0 else " noire"
         str += " carrée" if self.forme == 0 else " ronde"
-        str += " lisse" if self.dessus == 0 else " lisse"
+        str += " lisse" if self.dessus == 0 else " creusée"
         str += " petite" if self.taille == 0 else " grande"
         
         return str
