@@ -68,15 +68,32 @@ class Plateau:
         
         return diag or has_line or has_column
 
+    def recuperer_cases_vides(self) -> list:
+        """
+            Renvoie l'ensemble des cases vides sous la forme d'une liste avec leur indice
+        """
+        empty = []
+
+        for x in range(0, self.x):
+            for y in range(0, self.y):
+                if self.arr[y][x] == None:
+                    empty.append(x + (y * self.x))
+
+        return empty
+
     def __repr__(self) -> str:
         out = ""
         for y in range(0, self.y):
             for x in range(0, self.x):
+                str = ""
                 if self.arr[y][x] == None:
-                    out+=f"[#{x+y*self.x}]"
+                    str += f"[#{x+y*self.x}]"
+                    str += " " * (8 - len(str))
                 else:
-                    out += repr(self.arr[y][x])
-                out += " | "
+                    str += repr(self.arr[y][x])
+                    str += " " * (7 - len(str))
+
+                out += (str + " | ") 
             out += "\n"
 
         return out

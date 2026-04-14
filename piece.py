@@ -19,12 +19,26 @@ class Piece:
 
     def __repr__(self):
         "Affichage de la pièce et de ses caractéristiques"
+        str = ""
+
+        if self.couleur == 0:
+                str += "⬜" if self.forme == 0 else "⚪"
+        else:
+              str += "⬛" if self.forme == 0 else "⚫"  
+
+        if self.dessus == 0:
+                str += " (#)" if self.taille == 0 else " (###)"
+        else:
+                str += " (@)" if self.taille == 0 else " (@@@)"
+
+        """
         str = "pièce"
         str += " blanche" if self.couleur == 0 else " noire"
         str += " carrée" if self.forme == 0 else " ronde"
         str += " lisse" if self.dessus == 0 else " creusée"
         str += " petite" if self.taille == 0 else " grande"
-        
+        """
+
         return str
 
 
