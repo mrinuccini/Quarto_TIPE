@@ -1,7 +1,6 @@
 from piece import Piece
 from plateau import Plateau
 from Human import Joueur
-from RandomBot import RandomBot
 
 class Game:
     #Instanciation du jeux
@@ -23,7 +22,10 @@ class Game:
         "Initialise les différentes variables / instanciations du jeu"
         self.plateau = Plateau(self.x,self.y) #Plateau
         self.generer_pioche() #Pioche
-        self.list_joueurs = [Joueur(), RandomBot()]
+
+        j1 = input("Joueur 1, quel type de joueur (Humain, RandomBot, MonteCarlo, MinMax) : ")
+        j2 = input("Joueur 2, quel type de joueur (Humain, RandomBot, MonteCarlo, MinMax) : ")
+        self.list_joueurs = [Joueur(j1), Joueur(j2)]
 
     def generer_pioche(self):
         "Génère la pioche du jeu (initialement remplie de toutes les pièces)"

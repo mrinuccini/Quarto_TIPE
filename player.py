@@ -1,8 +1,9 @@
 "Instanciation des joueurs"
-TYPES = ["Humain", "Monte Carlo", "MinMax"]
+TYPES = ["Humain", "MonteCarlo", "MinMax", "RandomBot"]
 
 from piece import *
 from plateau import *
+import random
 
 class Joueur:
     def __init__(self, typ="Humain", niveau=1):
@@ -28,6 +29,9 @@ class Joueur:
                 else:
                     print("Pièce indisponible, veuillez réessayer !")
             return i
+        
+        elif self.type == "RandomBot":
+            return random.randrange(0, len(pioche))
 
     def choisir_place(self, plateau, pioche, piece):
         """ Choix du placement de la pièce selon le type du joueur """
@@ -42,3 +46,6 @@ class Joueur:
                 if plateau.arr[column_idx][row_idx] == None:
                     cond = False
             return i
+        
+        elif self.type == "RandomBot":
+            return random.randrange(0, len(plateau.recuperer_cases_vides()))
