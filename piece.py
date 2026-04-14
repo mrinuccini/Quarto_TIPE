@@ -1,4 +1,10 @@
-##Instanciation de la pièce de jeu
+"""Instanciation de la pièce de jeu
+Classes :
+        - Piece
+Fonctions :
+        - comp
+"""
+
 class Piece:
     "Instanciation d'une pièce de jeu"
     def __init__(self, couleur: int, forme: int, dessus: int, taille:int) -> None:
