@@ -1,7 +1,6 @@
 from piece import Piece
 from plateau import Plateau
-from player import *
-
+from Human import Joueur
 
 class Game:
     #Instanciation du jeux
