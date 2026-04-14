@@ -1,4 +1,8 @@
-##Fonctions utiles
+"""Ensembles de fonctions utiles
+convert_matrice(M)
+"""
+
+
 def convert_matrice(M):
     """ Intervertit les lignes et les colonnes de la matrice M """
     #Assertions
@@ -40,7 +44,4 @@ def tests():
         [3],
     ]
     assert(convert_matrice(M2)==[[1,2,3]])
-    assert(convert_matrice(convert_matrice(M2))==M2)    
-
-
-tests()
+    assert(convert_matrice(convert_matrice(M2))==M2)

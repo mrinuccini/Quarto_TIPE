@@ -31,7 +31,9 @@ class Joueur:
             return i
         
         elif self.type == "RandomBot":
-            return random.randrange(0, len(pioche))
+            i = random.randrange(0, len(pioche))
+            print(f"Veuillez choisir une pièce : {i}")
+            return i
 
     def choisir_place(self, plateau, pioche, piece):
         """ Choix du placement de la pièce selon le type du joueur """
@@ -48,4 +50,6 @@ class Joueur:
             return i
         
         elif self.type == "RandomBot":
-            return random.randrange(0, len(plateau.recuperer_cases_vides()))
+            i = random.randrange(0, len(plateau.recuperer_cases_vides()))
+            print(f"Veuillez choisir une position où placer la pièce : {i}")
+            return i

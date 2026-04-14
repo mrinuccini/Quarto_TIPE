@@ -1,3 +1,4 @@
+"Instanciation d'une file"
 class Cellule:
     "Instanciation d'une cellule"
     def __init__(self, val, suivant=None):

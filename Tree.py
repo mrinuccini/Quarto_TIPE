@@ -1,5 +1,5 @@
+"Instanciaiton d'arbres"
 from Queue import Queue
-
 
 class Node:
     "Instanciation d'un nœud"
