@@ -44,6 +44,3 @@ if __name__ == "__main__":
     plateau.placer_piece(0, 2, Piece(1, 0, 0, 0))
     plateau.placer_piece(0, 3, Piece(1, 0, 0, 0))
     print(plateau.verifier_alignements()) # True car il y a un aligments sur la ligne 2
-
-
-
