@@ -17,10 +17,26 @@ class Plateau:
         self.x = x
         self.y = y
 
+    def cloner(self) -> Plateau:
+        """
+            Renvoie un clone du plateau actuel
+        """
+        clone = Plateau(x=self.x, y=self.y)
+        clone.arr = [[self.arr[y][x] for x in range(0, self.x)] for y in range(0, y)]
+
+        return clone
+
     def reinitialiser(self) -> None:
         for x in range(0, self.x):
             for y in range(0, self.y):
                 self.arr[y][x] = None
+
+
+    def recuperer_piece_1D(self, id: int) -> Piece:
+        """
+            Récupère la pièce associée à la coordonée id en une dimension
+        """
+        return recuperer_piece(id % self.x, id // self.x)
 
     def recuperer_piece(self, x:int, y: int) -> Piece:
         """
@@ -44,19 +60,20 @@ class Plateau:
 
         self.arr[y][x] = piece
 
-    def verifier_alignements(self) -> bool:
+    def placer_piece_1D(self, id: int, piece: Piece) -> None:
         """
-            Vérifie si le plateau contient un aligments (mais ne précise pas où se trouve cet alignement !)
+            Place la pièce à la coordonée id en une dimension
         """
-        # Vérification des lignes
-        has_line = any(comp(self.arr[i]) for i in range (self.x))
+        return placer_piece(id % self.x, id // self.x, piece)
 
-        # Vérifications des colonnes
-        columns = convert_matrice(self.arr)
-        has_column = any(comp(columns[i]) for i in range(self.x))
+    def recuperer_lignes_diagonales(self) -> list:
+        """
+            Renvoie une liste contenant les quatres lignes, quatres colonnes et deux diagonales
+        """
+        out = [line for line in self.arr] # Lignes
 
-        # Vérifiction diagonales
-        diag = False
+        for column in convert_matrice(self.arr): # Colonnes
+            out.append(column)
 
         diagonale1 = []
         diagonale2 = []
@@ -64,9 +81,17 @@ class Plateau:
             diagonale1.append(self.arr[i][i])
             diagonale2.append(self.arr[self.x - i - 1][self.x - i - 1])
 
-        diag = comp(diagonale1) or comp(diagonale2)
-        
-        return diag or has_line or has_column
+        out.append(diagonale1)
+        out.append(diagonale2)
+
+        return out
+
+    def verifier_alignements(self) -> bool:
+        """
+            Vérifie si le plateau contient un aligments (mais ne précise pas où se trouve cet alignement !)
+        """
+        lignes_colonnes_diagonales = self.recuperer_lignes_diagonales()
+        return any(comp(self.arr[i]) for i in range (self.x))
 
     def recuperer_cases_vides(self) -> list:
         """
