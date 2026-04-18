@@ -29,9 +29,7 @@ def nombre_caracteristiques_communes(pieces: list) -> int:
     """
     Renvoie le nombre de caractéristiques communes qu'on une liste de pièce
     """
-    assert(L!=[])
-    assert(type(L)==list)
-
+    
     if len(pieces) == 0: 
         return 0
 

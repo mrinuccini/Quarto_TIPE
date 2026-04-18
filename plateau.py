@@ -22,8 +22,7 @@ class Plateau:
             Renvoie un clone du plateau actuel
         """
         clone = Plateau(x=self.x, y=self.y)
-        clone.arr = [[self.arr[y][x] for x in range(0, self.x)] for y in range(0, y)]
-
+        clone.arr = [[self.arr[y][x] for x in range(0, self.x)] for y in range(0, self.y)]
         return clone
 
     def reinitialiser(self) -> None:
@@ -36,7 +35,7 @@ class Plateau:
         """
             Récupère la pièce associée à la coordonée id en une dimension
         """
-        return recuperer_piece(id % self.x, id // self.x)
+        return self.recuperer_piece(id % self.x, id // self.x)
 
     def recuperer_piece(self, x:int, y: int) -> Piece:
         """
@@ -54,7 +53,7 @@ class Plateau:
         assert(0 <= x < self.x)
         assert(0 <= y < self.y)
 
-        if self.arr[y][x] != None:
+        if self.arr[y][x] != None and piece != None:
             print(f"Impossible de placer une pièce à la position (x={x}; y={y}).")
             return
 
@@ -64,7 +63,7 @@ class Plateau:
         """
             Place la pièce à la coordonée id en une dimension
         """
-        return placer_piece(id % self.x, id // self.x, piece)
+        return self.placer_piece(id % self.x, id // self.x, piece)
 
     def recuperer_lignes_diagonales(self) -> list:
         """

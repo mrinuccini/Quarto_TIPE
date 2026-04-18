@@ -62,7 +62,7 @@ def comp(L):
 
     if None in L:
          return False
-    
+         
     if all(p.couleur == L[0].couleur for p in L[1:]):
             return True
     if all(p.forme == L[0].forme for p in L[1:]):
@@ -71,5 +71,6 @@ def comp(L):
             return True
     if all(p.taille == L[0].taille for p in L[1:]):
             return True
+
     
     return False

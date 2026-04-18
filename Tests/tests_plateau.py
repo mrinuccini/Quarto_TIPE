@@ -1,5 +1,4 @@
 "Tests du système de plateau de jeu"
-
 from plateau import Plateau
 from piece import Piece
 

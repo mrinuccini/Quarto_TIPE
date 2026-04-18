@@ -25,7 +25,7 @@ class Game:
 
         j1 = input("Joueur 1, quel type de joueur (Humain, RandomBot, MonteCarlo, MinMax) : ")
         j2 = input("Joueur 2, quel type de joueur (Humain, RandomBot, MonteCarlo, MinMax) : ")
-        self.list_joueurs = [Joueur(j1), Joueur(j2)]
+        self.list_joueurs = [Joueur(j1), Joueur(j2, max_depth=2)]
 
     def generer_pioche(self):
         "Génère la pioche du jeu (initialement remplie de toutes les pièces)"
@@ -82,7 +82,7 @@ class Game:
         """
         assert((type(piece_idx)==int and piece_idx>=0) or piece_idx==None)
 
-        self.list_joueurs[self.joueur_idx].debut_tour(self.plateau, self.pioche, self.pioche[piece_idx])
+        self.list_joueurs[self.joueur_idx].debut_tour(self.plateau, self.pioche, (self.pioche[piece_idx] if piece_idx != None else None))
 
         print("/"*80 + f"\nTour du Joueur {self.joueur_idx+1}\n" + "-"*17)
         if piece_idx != None:

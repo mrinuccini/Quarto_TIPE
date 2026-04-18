@@ -13,7 +13,7 @@ class Node:
         if enfants == None:
             enfants = []
         assert(type(enfants)==list and all(type(e)==Node for e in enfants))
-        assert(type(val)==float)
+        # assert(type(val)==float)
 
         self.val = val
         self.enfants = enfants
