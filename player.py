@@ -3,10 +3,12 @@ TYPES = ["Humain", "MonteCarlo", "MinMax", "RandomBot"]
 
 from piece import *
 from plateau import *
+from minmax import *
+from Tree import Node
 import random
 
 class Joueur:
-    def __init__(self, typ="Humain", niveau=1):
+    def __init__(self, typ="Humain", niveau=1, **kwargs):
         """ Paramètre :
                 type : chaîne de caractères, élément de TYPES
                        type de joueur
@@ -16,6 +18,16 @@ class Joueur:
         assert(typ in TYPES)
         self.type = typ
         self.niveau = niveau
+
+        if self.type == "MinMax":
+            self.max_depth = kwargs["max_depth"]
+
+    def debut_tour(self, plateau: Plateau, pioche: list, piece_a_jouer: Piece) -> None:
+        """
+            Utilisé au début du tour pour les IA afin de générer les arbres de jeux, etc...
+        """
+        if self.type == "MinMax":
+            self.game_tree = generate_minmax_tree(Node(None), plateau, pioche, piece_a_jouer, self.max_depth)
 
     def choisir_piece(self, plateau, pioche):
         """ Choix d'une pièce que devra placer le joueur suivant, selon le type du joueur """
@@ -34,6 +46,8 @@ class Joueur:
             i = random.randrange(0, len(pioche))
             print(f"Veuillez choisir une pièce : {i}")
             return i
+        elif self.type == "MinMax":
+            pass
 
     def choisir_place(self, plateau, pioche, piece):
         """ Choix du placement de la pièce selon le type du joueur """
@@ -53,3 +67,5 @@ class Joueur:
             i = random.randrange(0, len(plateau.recuperer_cases_vides()))
             print(f"Veuillez choisir une position où placer la pièce : {i}")
             return i
+        elif self.type == "MinMax":
+            pass

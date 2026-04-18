@@ -24,3 +24,26 @@ def convert_matrice(M):
             line += [M[i][j]]
         M2 += [line]
     return M2
+
+def nombre_caracteristiques_communes(pieces: list) -> int:
+    """
+    Renvoie le nombre de caractéristiques communes qu'on une liste de pièce
+    """
+    assert(L!=[])
+    assert(type(L)==list)
+
+    if len(pieces) == 0: 
+        return 0
+
+    count = 0
+    
+    if all(p.couleur == pieces[0].couleur for p in pieces[1:]):
+        count += 1
+    if all(p.forme == pieces[0].forme for p in pieces[1:]):
+        count += 1
+    if all(p.dessus == pieces[0].dessus for p in pieces[1:]):
+        count += 1
+    if all(p.taille == pieces[0].taille for p in pieces[1:]):
+        count += 1
+    
+    return count

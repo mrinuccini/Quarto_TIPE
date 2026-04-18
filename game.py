@@ -81,6 +81,9 @@ class Game:
                         (None s'il n'y en a aucune)
         """
         assert((type(piece_idx)==int and piece_idx>=0) or piece_idx==None)
+
+        self.list_joueurs[self.joueur_idx].debut_tour(self.plateau, self.pioche, self.pioche[piece_idx])
+
         print("/"*80 + f"\nTour du Joueur {self.joueur_idx+1}\n" + "-"*17)
         if piece_idx != None:
             print(f"Pièce à jouer : {self.pioche[piece_idx]}")
