@@ -23,9 +23,9 @@ class Game:
         self.plateau = Plateau(self.x,self.y) #Plateau
         self.generer_pioche() #Pioche
 
-        j1 = input("Joueur 1, quel type de joueur (Humain, RandomBot, MonteCarlo, MinMax) : ")
-        j2 = input("Joueur 2, quel type de joueur (Humain, RandomBot, MonteCarlo, MinMax) : ")
-        self.list_joueurs = [Joueur(j1), Joueur(j2, max_depth=2)]
+        # j1 = input("Joueur 1, quel type de joueur (Humain, RandomBot, MonteCarlo, MinMax) : ")
+        # j2 = input("Joueur 2, quel type de joueur (Humain, RandomBot, MonteCarlo, MinMax) : ")
+        self.list_joueurs = [Joueur("Humain"), Joueur("MinMax", max_depth=1)]
 
     def generer_pioche(self):
         "Génère la pioche du jeu (initialement remplie de toutes les pièces)"
@@ -51,18 +51,17 @@ class Game:
         i = self.list_joueurs[self.joueur_idx].choisir_piece(self.plateau, self.pioche)
         return i
 
-    def ask_place(self, piece_idx):
+    def ask_place(self, piece):
         "Choix du placement de la pièce sur le plateau"
-        i = self.list_joueurs[self.joueur_idx].choisir_place(self.plateau, self.pioche, piece_idx)
+        i = self.list_joueurs[self.joueur_idx].choisir_place(self.plateau, self.pioche, piece)
         return i;
 
-    def place(self, place_idx, piece_idx):
+    def place(self, place_idx, piece):
         """Placement de la pièce d'indice piece_idx dans la pioche à la position place_idx"""
         row_idx = place_idx % self.x
         column_idx = place_idx // self.x
         #Placement de la pièce
-        self.plateau.arr[column_idx][row_idx] = self.pioche[piece_idx]
-        del self.pioche[piece_idx]
+        self.plateau.arr[column_idx][row_idx] = piece
         self.afficher_plateau()
         self.afficher_pioche()
 
@@ -74,19 +73,19 @@ class Game:
             self.continuer = False
             self.egalite = True
 
-    def debut_tour(self, piece_idx=None):
+    def debut_tour(self, piece=None):
         """Affichage des informations de début de tour
         Paramètre :
             piece_idx : indice de la pièce à jouer du joueur dans la pioche 
                         (None s'il n'y en a aucune)
         """
-        assert((type(piece_idx)==int and piece_idx>=0) or piece_idx==None)
+        assert(type(piece)==Piece or piece==None)
 
-        self.list_joueurs[self.joueur_idx].debut_tour(self.plateau, self.pioche, (self.pioche[piece_idx] if piece_idx != None else None))
+        self.list_joueurs[self.joueur_idx].debut_tour(self.plateau, self.pioche, piece)
 
         print("/"*80 + f"\nTour du Joueur {self.joueur_idx+1}\n" + "-"*17)
-        if piece_idx != None:
-            print(f"Pièce à jouer : {self.pioche[piece_idx]}")
+        if piece != None:
+            print(f"Pièce à jouer : {piece}")
         self.afficher_plateau()
         self.afficher_pioche()
 
@@ -114,11 +113,16 @@ class Game:
         #Lancement de la boucle de jeu
         while self.continuer>0:
             piece_idx = self.ask_pioche() #Choix de la future pièce à jouer
+
+            piece = self.pioche[piece_idx]
+            del self.pioche[piece_idx]
+
             self.joueur_idx = 1 - self.joueur_idx #Changement de joueur
             print("\n")
-            self.debut_tour(piece_idx) #Affichage des informations
-            place_idx = self.ask_place(piece_idx) #Choix du placement de la pièce
-            self.place(place_idx, piece_idx) #On place la pièce
+
+            self.debut_tour(piece) #Affichage des informations
+            place_idx = self.ask_place(piece) #Choix du placement de la pièce
+            self.place(place_idx, piece) #On place la pièce
             self.check() #On vérifie s'il y a victoire ou égalité
 
             self.continuer -= 1

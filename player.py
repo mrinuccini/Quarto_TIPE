@@ -29,14 +29,8 @@ class Joueur:
         """
         if self.type == "MinMax":
             t = time.time()
-            self.game_tree = Node(None)
-            generate_minmax_tree(self.game_tree, plateau, pioche, piece_a_jouer, self.max_depth)
-            print(f"Temps de génération de l'arbre : {(time.time() - t):.3f}s")
-            t_prim = time.time()
-            score, self.best_move = minimax(self.game_tree, evaluate1, float("-inf"), float("inf"), maximise=True)
-            print(self.best_move.val)
-            print(f"Temps de parcours de l'arbre : {(time.time() - t_prim):.3f}s")
-            print(f"Score du coup trouvé : {score}. Temps de calcul : {(time.time() - t):.3f}s")
+            score, self.best_move = minimax(plateau, pioche, piece_a_jouer, self.max_depth, evaluate1, float("-inf"), float("inf"), maximise=True)
+            print(f"Score du coup trouvé : {score} (coup : {self.best_move}). Temps de calcul : {(time.time() - t):.3f}s")
 
     def choisir_piece(self, plateau, pioche: list):
         """ Choix d'une pièce que devra placer le joueur suivant, selon le type du joueur """
@@ -56,7 +50,7 @@ class Joueur:
             print(f"Veuillez choisir une pièce : {i}")
             return i
         elif self.type == "MinMax":
-            return self.best_move.val[0]
+            return self.best_move[1]
 
     def choisir_place(self, plateau, pioche, piece):
         """ Choix du placement de la pièce selon le type du joueur """
@@ -77,4 +71,4 @@ class Joueur:
             print(f"Veuillez choisir une position où placer la pièce : {i}")
             return i
         elif self.type == "MinMax":
-            return self.best_move.val[1]
+            return self.best_move[0]
