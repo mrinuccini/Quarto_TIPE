@@ -50,9 +50,9 @@ class Joueur:
             print(f"Veuillez choisir une pièce : {i}")
             return i
         elif self.type == "MinMax":
-            return self.best_move[1]
+            return self.best_move[0]
 
-    def choisir_place(self, plateau, pioche, piece):
+    def choisir_place(self, plateau, pioche, piece_idx):
         """ Choix du placement de la pièce selon le type du joueur """
         #Joueur humain
         if self.type == "Humain":
@@ -71,4 +71,4 @@ class Joueur:
             print(f"Veuillez choisir une position où placer la pièce : {i}")
             return i
         elif self.type == "MinMax":
-            return self.best_move[0]
+            return self.best_move[1]

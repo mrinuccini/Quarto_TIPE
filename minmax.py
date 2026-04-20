@@ -12,8 +12,8 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
         Pour l'instant, algorithme uniquement avec un elagage alpha-beta classique (pas de prise en compte des symétries)
     """
 
-    if max_depth == -1 or len(plateau.recuperer_cases_vides()) == 0: 
-        return f_eval(plateau, pioche, piece_a_placer) * (1 if maximise else -1), (None, None)
+    if max_depth == 0 or len(plateau.recuperer_cases_vides()) == 0: 
+        return f_eval(plateau, pioche, piece_a_placer) * (-1 if maximise else 1), (None, None)
     else:
         meilleur_coup = None
 
@@ -25,12 +25,12 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
 
                 if plateau.verifier_alignements():
                     plateau.placer_piece_1D(case, None)
-                    return f_eval(plateau, pioche, piece_a_placer) * (1 if maximise else -1), (None, case)
+                    return f_eval(plateau, pioche, piece_a_placer) * (-1 if maximise else 1), (None, case)
                 
                 for piece_id, piece in list(pioche.items()):
                     del pioche[piece_id]
                     
-                    f_score, _ = minimax(plateau, pioche, piece, (max_depth - 1), f_eval, max_eval, beta, maximise=False)
+                    f_score, _ = minimax(plateau, pioche, piece, (max_depth - 1), f_eval, max(alpha, max_eval), beta, maximise=False)
                     pioche[piece_id] = piece # backtracking, on annule la pièce qu'on avait choisit
                     
                     if f_score > max_eval:
@@ -38,7 +38,8 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
                         meilleur_coup = (piece_id, case)
 
                     if max_eval >= beta:
-                        break
+                        plateau.placer_piece_1D(case, None) # Backtracking on annule le coup qu'on avait joué
+                        return max_eval, meilleur_coup
 
                 plateau.placer_piece_1D(case, None) # Backtracking on annule le coup qu'on avait joué
 
@@ -51,12 +52,12 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
 
                 if plateau.verifier_alignements():
                     plateau.placer_piece_1D(case, None)
-                    return f_eval(plateau, pioche, piece_a_placer) * (1 if maximise else -1), (None, case)
+                    return f_eval(plateau, pioche, piece_a_placer) * (-1 if maximise else 1), (None, case)
                 
                 for piece_id, piece in list(pioche.items()):
                     del pioche[piece_id]
 
-                    f_score, _ = minimax(plateau, pioche, piece, (max_depth - 1), f_eval, min_eval, beta, maximise=True)
+                    f_score, _ = minimax(plateau, pioche, piece, (max_depth - 1), f_eval, alpha, min(beta, min_eval), maximise=True)
                     
                     pioche[piece_id] = piece # backtracking, on annule la pièce qu'on avait choisit
 
@@ -65,7 +66,8 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
                         meilleur_coup = (piece_id, case)
 
                     if min_eval <= alpha:
-                        break
+                        plateau.placer_piece_1D(case, None) # Backtracking on annule le coup qu'on avait joué
+                        return min_eval, meilleur_coup
 
                 plateau.placer_piece_1D(case, None) # Backtracking on annule le coup qu'on avait joué
 
@@ -80,16 +82,6 @@ def evaluate1(plateau: Plateau, pioche: list, piece_a_donner: Piece):
         Sinon, plus il y a de ligne avec de caractéristique en commun, plus le score sera élevé
         De plus, si une ligne possède 3 pièce avec des caractéristiques en commun, plus il y a de pièce dans la pioche qui permettraient de compléter la ligne, plus le score sera élevé
     """
-    # Premièrement, on vérifie si la pièce donnée mène à la victoire
-    for case in plateau.recuperer_cases_vides():
-        plateau.placer_piece_1D(case, piece_a_donner)
-
-        if plateau.verifier_alignements(): # Si oui, ce coup est catastrophique et on renvoie la plus grande valeur possible
-            plateau.placer_piece_1D(case, None)
-            return float("inf")
-
-        plateau.placer_piece_1D(case, None)
-    
     score = 0
 
     # Ensuite, on va analyser toutes les lignes et diagonales
@@ -99,6 +91,11 @@ def evaluate1(plateau: Plateau, pioche: list, piece_a_donner: Piece):
         pieces_non_vides = [p for p in lcd if p != None]
         if len(pieces_non_vides) <= 1: # Si la ligne est vide ou n'a qu'une seule pièce, elle ne rapporte rien
             continue
+
+        # On vérifie si la pièce donnée par l'adversaire mène directement à un échec
+        if len(pieces_non_vides) == 3:
+            if comp(pieces_non_vides + [piece_a_donner]):
+                return float("inf")
 
         caracteristiques_communes = nombre_caracteristiques_communes(pieces_non_vides)
 
@@ -110,10 +107,8 @@ def evaluate1(plateau: Plateau, pioche: list, piece_a_donner: Piece):
         elif len(pieces_non_vides) == 3:
             # On compte le nombre de piece dans la pioche qui ont une caractéristiques en commun avec la ligne et on ajoute 100 points pour chacune de ses pièces
             count = 0
-            for piece in pioche:
-                all_pieces = list(pieces_non_vides)
-                all_pieces.append(pioche[piece])
-                if comp(all_pieces):
+            for piece_pioche in pioche.values(): 
+                if comp(pieces_non_vides + [piece_pioche]):
                     count += 1
 
             score += 100 * count
