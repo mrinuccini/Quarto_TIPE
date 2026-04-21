@@ -1,3 +1,4 @@
+from time import sleep
 from piece import Piece
 from plateau import Plateau
 from player import Joueur
@@ -25,7 +26,7 @@ class Game:
 
         #j1 = input("Joueur 1, quel type de joueur (Humain, RandomBot, MonteCarlo, MinMax) : ")
         #j2 = input("Joueur 2, quel type de joueur (Humain, RandomBot, MonteCarlo, MinMax) : ")
-        self.list_joueurs = [Joueur("Humain"), Joueur("MinMax", max_depth=4)]
+        self.list_joueurs = [Joueur("RandomBot"), Joueur("MinMax", max_depth=4)]
 
     def generer_pioche(self):
         "Génère la pioche du jeu (initialement remplie de toutes les pièces)"

@@ -5,6 +5,8 @@ from Tree import Node
 from piece import Piece, comp
 from toolbox import nombre_caracteristiques_communes
 
+SCORE_VICTOIRE = 100000
+
 def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: int, f_eval, alpha, beta, maximise: bool=True) -> tuple:
     """
         Applique l'algorithme minmax à l'arbre de racine node
@@ -18,14 +20,14 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
         meilleur_coup = None
 
         if maximise:
-            max_eval = float("-inf")
+            max_eval = -200000
 
             for case in plateau.recuperer_cases_vides():
                 plateau.placer_piece_1D(case, piece_a_placer)
 
                 if plateau.verifier_alignements():
                     plateau.placer_piece_1D(case, None)
-                    return f_eval(plateau, pioche, piece_a_placer) * (-1 if maximise else 1), (None, case)
+                    return SCORE_VICTOIRE + max_depth, (None, case) # le fait d'ajouter max_depth permet de s'assurer que minmax préferera un coup qui mène rapidement à la victoire plutôt qu'on coup qui mène doucement à la victoire
                 
                 for piece_id, piece in list(pioche.items()):
                     del pioche[piece_id]
@@ -45,14 +47,14 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
 
             return max_eval, meilleur_coup
         else:
-            min_eval = float("inf")
+            min_eval = 200000
 
             for case in plateau.recuperer_cases_vides():
                 plateau.placer_piece_1D(case, piece_a_placer)
 
                 if plateau.verifier_alignements():
                     plateau.placer_piece_1D(case, None)
-                    return f_eval(plateau, pioche, piece_a_placer) * (-1 if maximise else 1), (None, case)
+                    return -SCORE_VICTOIRE - max_depth, (None, case) # le fait d'enlever max_depth permet de s'assurer que minmax préferera un coup qui mène rapidement à la victoire plutôt qu'on coup qui mène doucement à la victoire
                 
                 for piece_id, piece in list(pioche.items()):
                     del pioche[piece_id]
@@ -95,7 +97,7 @@ def evaluate1(plateau: Plateau, pioche: list, piece_a_donner: Piece):
         # On vérifie si la pièce donnée par l'adversaire mène directement à un échec
         if len(pieces_non_vides) == 3:
             if comp(pieces_non_vides + [piece_a_donner]):
-                return float("inf")
+                return SCORE_VICTOIRE
 
         caracteristiques_communes = nombre_caracteristiques_communes(pieces_non_vides)
 

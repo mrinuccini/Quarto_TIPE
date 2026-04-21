@@ -46,8 +46,7 @@ class Joueur:
             return i
         
         elif self.type == "RandomBot":
-            i = random.randrange(0, len(pioche))
-            print(f"Veuillez choisir une pièce : {i}")
+            i = random.choice(list(pioche.keys()))
             return i
         elif self.type == "MinMax":
             return self.best_move[0]
@@ -67,8 +66,7 @@ class Joueur:
             return i
         
         elif self.type == "RandomBot":
-            i = random.randrange(0, len(plateau.recuperer_cases_vides()))
-            print(f"Veuillez choisir une position où placer la pièce : {i}")
+            i = random.choice(plateau.recuperer_cases_vides())
             return i
         elif self.type == "MinMax":
             return self.best_move[1]

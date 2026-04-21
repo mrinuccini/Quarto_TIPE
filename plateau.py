@@ -69,7 +69,7 @@ class Plateau:
         """
             Renvoie une liste contenant les quatres lignes, quatres colonnes et deux diagonales
         """
-        out = [line for line in self.arr] # Lignes
+        out = [line[:] for line in self.arr] # Lignes
 
         for column in convert_matrice(self.arr): # Colonnes
             out.append(column)
@@ -78,7 +78,7 @@ class Plateau:
         diagonale2 = []
         for i in range (0, self.x):
             diagonale1.append(self.arr[i][i])
-            diagonale2.append(self.arr[self.x - i - 1][self.x - i - 1])
+            diagonale2.append(self.arr[i][self.x - 1 - i])
 
         out.append(diagonale1)
         out.append(diagonale2)
@@ -90,7 +90,7 @@ class Plateau:
             Vérifie si le plateau contient un aligments (mais ne précise pas où se trouve cet alignement !)
         """
         lignes_colonnes_diagonales = self.recuperer_lignes_diagonales()
-        return any(comp(self.arr[i]) for i in range (self.x))
+        return any(comp(lcd) for lcd in lignes_colonnes_diagonales)
 
     def recuperer_cases_vides(self) -> list:
         """
