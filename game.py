@@ -24,9 +24,9 @@ class Game:
         self.plateau = Plateau(self.x,self.y) #Plateau
         self.generer_pioche() #Pioche
 
-        #j1 = input("Joueur 1, quel type de joueur (Humain, RandomBot, MonteCarlo, MinMax) : ")
-        #j2 = input("Joueur 2, quel type de joueur (Humain, RandomBot, MonteCarlo, MinMax) : ")
-        self.list_joueurs = [Joueur("RandomBot"), Joueur("MinMax", max_depth=4)]
+        j1 = input("Joueur 1, quel type de joueur (Humain, RandomBot, MonteCarlo, MinMax) : ")
+        j2 = input("Joueur 2, quel type de joueur (Humain, RandomBot, MonteCarlo, MinMax) : ")
+        self.list_joueurs = [Joueur(j1), Joueur(j2, max_depth=4)]
 
     def generer_pioche(self):
         "Génère la pioche du jeu (initialement remplie de toutes les pièces)"
