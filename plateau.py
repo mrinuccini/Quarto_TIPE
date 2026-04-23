@@ -17,7 +17,7 @@ class Plateau:
         self.x = x
         self.y = y
 
-    def cloner(self) -> Plateau:
+    def cloner(self):
         """
             Renvoie un clone du plateau actuel
         """
