@@ -1,5 +1,5 @@
 "Instanciaiton d'arbres"
-from Queue import Queue
+from Queue import *
 
 class Node:
     "Instanciation d'un nœud"

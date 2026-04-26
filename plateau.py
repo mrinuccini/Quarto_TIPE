@@ -1,5 +1,5 @@
-from piece import Piece, comp
-from toolbox import convert_matrice
+from piece import *
+from toolbox import *
 
 class Plateau:
     arr = []

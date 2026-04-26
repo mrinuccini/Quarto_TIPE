@@ -1,9 +1,9 @@
+#Importations
+from plateau import *
+from Tree import *
 import copy
 from math import inf
-from plateau import Plateau
-from Tree import Node
-from piece import Piece, comp
-from toolbox import nombre_caracteristiques_communes
+
 
 SCORE_VICTOIRE = 100000
 

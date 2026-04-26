@@ -1,12 +1,11 @@
 "Instanciation des joueurs"
-TYPES = ["Humain", "MonteCarlo", "MinMax", "RandomBot"]
 
-from piece import *
-from plateau import *
+#Importations
 from minmax import *
-from Tree import Node
 import random
 import time
+
+TYPES = ["Humain", "MonteCarlo", "MinMax", "RandomBot"]
 
 class Joueur:
     def __init__(self, typ="Humain", niveau=1, **kwargs):

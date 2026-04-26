@@ -1,7 +1,5 @@
+from player import *
 from time import sleep
-from piece import Piece
-from plateau import Plateau
-from player import Joueur
 
 class Game:
     #Instanciation du jeux
@@ -135,6 +133,3 @@ class Game:
             print("Égalité, il ne reste plus aucune pice à jouer !")
         else:
             print(f"Fin de partie, le joueur {self.joueur_idx+1} a gagné !")
-
-
-game = Game()
