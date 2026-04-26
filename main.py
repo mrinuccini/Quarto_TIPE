@@ -1,1 +1,1 @@
-import game
+from game import *
