@@ -21,7 +21,7 @@ def expansion(node:Node_MCTS):
             nv_plateau = node.val.plateau.cloner() #Plateau clone
             nv_plateau.placer_piece_1D(case, node.val.piece_a_jouer) #On place la pièce
 
-            nv_pioche = {key:pioche[key] for key in pioche.keys()} #Nouvelle pioche
+            nv_pioche = node.val.pioche.copy() #Nouvelle pioche
             del nv_pioche[piece_idx] #On retire de la pioche la pièce
 
             nv_state = RootState(nv_plateau, nv_pioche, piece_suiv) #Nouvel état de jeu
@@ -32,16 +32,29 @@ def expansion(node:Node_MCTS):
         return choice(node.enfants)
     return node
 
-def simulation(node:Node_MCTS):
+def simulation(state:RootState):
     "Phase de simulation"
-    node2 = node
-    while not node2.plateau.verifier_alignements():
-        cases = node2.plateau.recuperer_cases_vides()
+    state2 = state.cloner()
+    while not state2.plateau.verifier_alignements():
+        cases = state2.plateau.recuperer_cases_vides()
         if cases==[]:
-            return
+            return False
+        
+        if not state2.pioche:  # Si pioche vide
+            return False
+        if not cases:  # Si aucune case disponible
+            return False
         case = choice(cases)
-        node2.plateau.placer_piece_1D(case, node.piece_a_jouer)
-    return node.plateau.verifier_alignements()
+        piece = choice(list(state2.pioche.keys()))
+
+        nv_plateau = state2.plateau.cloner()
+        nv_plateau.placer_piece_1D(case, state2.piece_a_jouer)
+
+        nv_pioche = {key:state2.pioche[key] for key in state2.pioche}
+        del nv_pioche[piece]
+
+        state2 = RootState(nv_plateau, nv_pioche, state2.pioche[piece])
+    return True
 
 def backpropagate(node, result):
     "Backpropagation"

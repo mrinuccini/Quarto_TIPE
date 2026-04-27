@@ -1,5 +1,6 @@
 from piece import *
 from toolbox import *
+import copy
 
 class Plateau:
     arr = []
@@ -123,9 +124,14 @@ class Plateau:
 
         return out
     
+
 class RootState:
     "État de jeu (début du tour)"
     def __init__(self, plateau, pioche, piece_a_jouer):
         self.plateau = plateau
-        self.pioche = pioche
+        self.pioche = copy.deepcopy(pioche)
         self.piece_a_jouer = piece_a_jouer
+
+    def cloner(self):
+        "Renvoie un clone de l'état de jeu"
+        return RootState(self.plateau.cloner(), copy.deepcopy(self.pioche), self.piece_a_jouer)
