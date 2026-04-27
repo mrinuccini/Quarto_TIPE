@@ -22,9 +22,41 @@ class Game:
         self.plateau = Plateau(self.x,self.y) #Plateau
         self.generer_pioche() #Pioche
 
-        j1 = input("Joueur 1, quel type de joueur (Humain, RandomBot, MonteCarlo, MinMax) : ")
-        j2 = input("Joueur 2, quel type de joueur (Humain, RandomBot, MonteCarlo, MinMax) : ")
-        self.list_joueurs = [Joueur(j1), Joueur(j2, max_depth=4)]
+        self.init_player()
+
+    def init_player(self):
+        "Paramétrages des joueurs"
+        j1_param = {"c":1.4, "n_simul": 1000, "max_depth":4}
+        j1_type = input("Joueur 1, quel type de joueur (Humain, RandomBot, MonteCarlo, MinMax) : ")
+
+        if j1_type == "MonteCarlo":
+            c = input("Quel paramètre d'exploration c ? (défaut : 1.4) ")
+            if c != "":
+                j1_param["c"] = int(c)
+            n_simul = input("Combien d'échantillons ? (défaut : 1000) ")
+            if n_simul != "":
+                j1_param["n_simul"] = int(n_simul)
+        elif j1_type == "MinMax":
+            max_depth = input("Quelle profondeur maximale ? (défaut : 4) ")
+            if max_depth != "":
+                j1_param["max_depth"] = int(max_depth)
+
+        j2_param = {"c":1.4, "n_simul":1000, "max_depth":4}
+        j2_type = input("Joueur 2, quel type de joueur (Humain, RandomBot, MonteCarlo, MinMax) : ")
+
+        if j2_type == "MonteCarlo":
+            c = input("Quel paramètre d'exploration c ? (défaut : 1.4) ")
+            if c != "":
+                j2_param["c"] = int(c)
+            n_simul = input("Combien d'échantillons ? (défaut : 1000) ")
+            if n_simul != "":
+                j2_param["n_simul"] = int(n_simul)
+        elif j2_type == "MinMax":
+            max_depth = input("Quelle profondeur maximale ? (défaut : 4) ")
+            if max_depth != "":
+                j2_param["max_depth"] = int(max_depth)
+
+        self.list_joueurs = [Joueur(j1_type, param=j1_param), Joueur(j2_type, param=j2_param)]
 
     def generer_pioche(self):
         "Génère la pioche du jeu (initialement remplie de toutes les pièces)"

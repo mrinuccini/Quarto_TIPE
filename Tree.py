@@ -1,5 +1,6 @@
 "Instanciaiton d'arbres"
 from Queue import *
+from math import log
 
 class Node:
     "Instanciation d'un nœud"
@@ -12,7 +13,7 @@ class Node:
         #Assertions
         if enfants == None:
             enfants = []
-        assert(type(enfants)==list and all(type(e)==Node for e in enfants))
+        #assert(type(enfants)==list and all(type(e)==Node for e in enfants))
         # assert(type(val)==float)
 
         self.val = val
@@ -23,7 +24,7 @@ class Node:
             Paramètres :
                 - node : Node
         """
-        assert(type(node)==Node)
+        #assert(type(node)==Node)
         self.enfants += [node]
 
     def get_enfants(self):
@@ -68,3 +69,41 @@ class Node:
     def __repr__(self):
         "Représentation"
         return f"{self.val}, {self.enfants}"
+    
+
+class Node_MCTS(Node):
+    "Instanciation d'un nœud pour MCTS"
+    def __init__(self, val, move=None, enfants=None, parent=None):
+        """ Paramètres :
+                - val : float
+                        valeur du nœud
+                - enfants : liste des enfants
+                - parent : parent du noued
+        """
+        super().__init__(val, enfants) #Initialisation classique d'un arbre
+
+        self.parent = parent
+        self.win = 0 #Nombre de victoires associé au noeud
+        self.visited = 0 #Nombre de visites du noeud
+        self.move = move #mouvement associé au noeud
+        
+    def insert(self, node):
+        super().insert(node)
+        node.parent = self
+    
+    def init_tree_for_mcts(self):
+        """ Prépare l'arbre pour le MCTS """
+        self.win = 0
+        self.visited = 0
+        for e in self.enfants:
+            e.init_tree_for_mcts()
+                
+    def get_ucb(self, c):
+        """ Renvoie le UCT associé au noeud, au paramètre d'exploration c """
+        if self.visited == 0:
+            return float('inf')
+        return self.win / self.visited + c * log(self.parent.visited) / self.visited
+
+    def get_parent(self):
+        "Renvoie le parent du noeud"
+        return self.parent

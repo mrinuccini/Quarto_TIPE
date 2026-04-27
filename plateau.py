@@ -65,6 +65,7 @@ class Plateau:
         """
         return self.placer_piece(id % self.x, id // self.x, piece)
 
+
     def recuperer_lignes_diagonales(self) -> list:
         """
             Renvoie une liste contenant les quatres lignes, quatres colonnes et deux diagonales
@@ -121,3 +122,10 @@ class Plateau:
             out += "\n"
 
         return out
+    
+class RootState:
+    "État de jeu (début du tour)"
+    def __init__(self, plateau, pioche, piece_a_jouer):
+        self.plateau = plateau
+        self.pioche = pioche
+        self.piece_a_jouer = piece_a_jouer

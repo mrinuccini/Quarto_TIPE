@@ -2,13 +2,14 @@
 
 #Importations
 from minmax import *
+from montecarlo import *
 import random
 import time
 
 TYPES = ["Humain", "MonteCarlo", "MinMax", "RandomBot"]
 
 class Joueur:
-    def __init__(self, typ="Humain", niveau=1, **kwargs):
+    def __init__(self, typ="Humain", niveau=1, param={}):
         """ Paramètre :
                 type : chaîne de caractères, élément de TYPES
                        type de joueur
@@ -20,7 +21,10 @@ class Joueur:
         self.niveau = niveau
 
         if self.type == "MinMax":
-            self.max_depth = kwargs["max_depth"]
+            self.max_depth = param["max_depth"]
+        if self.type == "MonteCarlo":
+            self.c = param["c"]
+            self.n_simul = param["n_simul"]
 
     def debut_tour(self, plateau: Plateau, pioche: list, piece_a_jouer: Piece) -> None:
         """
@@ -29,6 +33,11 @@ class Joueur:
         if self.type == "MinMax":
             t = time.time()
             score, self.best_move = minimax(plateau, pioche, piece_a_jouer, self.max_depth, evaluate1, float("-inf"), float("inf"), maximise=True)
+            print(f"Score du coup trouvé : {score} (coup : {self.best_move}). Temps de calcul : {(time.time() - t):.3f}s")
+
+        if self.type == "MonteCarlo":
+            t = time.time()
+            score, self.best_move = mcts(RootState(plateau, pioche, piece_a_jouer), self.c, self.n_simul)
             print(f"Score du coup trouvé : {score} (coup : {self.best_move}). Temps de calcul : {(time.time() - t):.3f}s")
 
     def choisir_piece(self, plateau, pioche: list):
@@ -47,7 +56,7 @@ class Joueur:
         elif self.type == "RandomBot":
             i = random.choice(list(pioche.keys()))
             return i
-        elif self.type == "MinMax":
+        elif self.type == "MinMax" or self.type == "MonteCarlo":
             return self.best_move[0]
 
     def choisir_place(self, plateau, pioche, piece_idx):
@@ -67,5 +76,5 @@ class Joueur:
         elif self.type == "RandomBot":
             i = random.choice(plateau.recuperer_cases_vides())
             return i
-        elif self.type == "MinMax":
+        elif self.type == "MinMax" or self.type == "MonteCarlo":
             return self.best_move[1]
