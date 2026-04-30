@@ -16,9 +16,11 @@ class Joueur:
                 niveau : entier naturel
                          niveau de l'IA (si non humain)
         """
-        assert(typ in TYPES)
+        #assert(typ in TYPES)
         self.type = typ
         self.niveau = niveau
+
+        self.reflexion_time = 0
 
         if self.type == "MinMax":
             self.max_depth = param["max_depth"]
@@ -30,20 +32,22 @@ class Joueur:
         """
             Utilisé au début du tour pour les IA afin de générer les arbres de jeux, etc...
         """
-        if self.type == "MinMax":
-            t = time.time()
-            score, self.best_move = minimax(plateau, pioche, piece_a_jouer, self.max_depth, evaluate1, float("-inf"), float("inf"), maximise=True)
-            print(f"Score du coup trouvé : {score} (coup : {self.best_move}). Temps de calcul : {(time.time() - t):.3f}s")
-
-        if self.type == "MonteCarlo":
-            t = time.time()
-            score, self.best_move = mcts(RootState(plateau, pioche, piece_a_jouer), self.c, self.n_simul)
-            print(f"Score du coup trouvé : {score} (coup : {self.best_move}). Temps de calcul : {(time.time() - t):.3f}s")
+        if self.type in ("MinMax", "MonteCarlo"):
+            t1 = time.time()
+            if self.type == "MinMax":
+                score, self.best_move = minimax(plateau, pioche, piece_a_jouer, self.max_depth, evaluate1, float("-inf"), float("inf"), maximise=True)
+            if self.type == "MonteCarlo":
+                score, self.best_move = mcts(RootState(plateau, pioche, piece_a_jouer), self.c, self.n_simul)
+            t2 = time.time()
+            delta_t = t2 - t1
+            self.reflexion_time += delta_t
+            print(f"Score du coup trouvé : {score} (coup : {self.best_move}). Temps de calcul : {(delta_t):.3f}s")
 
     def choisir_piece(self, plateau, pioche: list):
         """ Choix d'une pièce que devra placer le joueur suivant, selon le type du joueur """
         #Joueur humain
         if self.type == "Humain":
+            t1 = time.time()
             cond = True
             while cond: #On ne s'arrête que quand le joueur a sélectionné une pièce valide
                 i = int(input("Veuillez choisir une pièce : "))
@@ -51,6 +55,9 @@ class Joueur:
                     cond = False
                 else:
                     print("Pièce indisponible, veuillez réessayer !")
+            t2 = time.time()
+            delta_t = t2 - t1
+            self.reflexion_time += delta_t
             return i
         
         elif self.type == "RandomBot":
@@ -63,6 +70,7 @@ class Joueur:
         """ Choix du placement de la pièce selon le type du joueur """
         #Joueur humain
         if self.type == "Humain":
+            t1 = time.time()
             #Sélection de la position
             cond = True
             while cond: #On ne s'arrête que quand le joueur choisi une position valide
@@ -71,6 +79,9 @@ class Joueur:
                 column_idx = i // plateau.x
                 if plateau.arr[column_idx][row_idx] == None:
                     cond = False
+            t2 = time.time()
+            delta_t = t2 - t1
+            self.reflexion_time += delta_t
             return i
         
         elif self.type == "RandomBot":

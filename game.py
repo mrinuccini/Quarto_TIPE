@@ -13,9 +13,10 @@ class Game:
         assert(type(n)==int and n>0)
         assert(type(x)==type(y)==int and x>0 and y>0)
 
-        self.parties_restantes = n
+        self.parties_totales = n
         self.x, self.y = x, y
         self.game_launch() #On lance le jeu
+        self.write() #On écrit le fichier des résultats
 
     def init_var(self):
         "Initialise les différentes variables / instanciations du jeu"
@@ -128,11 +129,25 @@ class Game:
     def game_launch(self):
         """ Lancement du jeu """
         i = 1
+        self.parties_restantes = self.parties_totales
+        self.wins = [0,0]
+
         print(f"PARTIE {i}\n" + "-"*9 + "\n")
+
         while self.parties_restantes > 0:
-            self.game_loop()
+            winner = self.game_loop() #On effectue une partie
+            self.wins[winner] += 1
             self.parties_restantes -= 1
         print("Toutes les parties ont été jouées")
+
+    def write(self):
+        f = open("resultats.csv", "w")
+        f.write(f"Nombre de parties total, {self.parties_totales}\n")
+        f.write(f"Nombre de parties nulles, {self.parties_restantes - self.wins[0] - self.wins[1]}\n")
+        f.write(f"J1 : Nombre de victoires, {self.wins[0]}\n")
+        f.write(f"J1 : Temps total de réflexion, {self.list_joueurs[0].reflexion_time}\n")
+        f.write(f"J2 : Nombre de victoires, {self.wins[1]}\n")
+        f.write(f"J2 : Temps total de réflexion, {self.list_joueurs[1].reflexion_time}\n")
 
     def game_loop(self):
         "Boucle de jeu"
@@ -162,6 +177,7 @@ class Game:
 
             self.continuer -= 1
         if self.egalite == True:
-            print("Égalité, il ne reste plus aucune pice à jouer !")
-        else:
-            print(f"Fin de partie, le joueur {self.joueur_idx+1} a gagné !")
+            print("Égalité, il ne reste plus aucune pièce à jouer !")
+            return -1
+        print(f"Fin de partie, le joueur {self.joueur_idx+1} a gagné !")
+        return self.joueur_idx

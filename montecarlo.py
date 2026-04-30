@@ -72,6 +72,8 @@ def mcts(root_state:RootState, c, n_simul):
         node = expansion(node)
         res = simulation(node.val)
         backpropagate(node, res)
-    best_move = max(root.enfants, key=lambda n: n.visited).move
+    best_node = max(root.enfants, key=lambda n: n.visited)
+    score = best_node.win / best_node.visited
+    best_move =  best_node.move
     
-    return _, best_move
+    return score, best_move
