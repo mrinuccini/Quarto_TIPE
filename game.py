@@ -13,9 +13,10 @@ class Game:
         assert(type(n)==int and n>0)
         assert(type(x)==type(y)==int and x>0 and y>0)
 
-        self.parties_restantes = n
+        self.parties_totales = n
         self.x, self.y = x, y
         self.game_launch() #On lance le jeu
+        self.write() #On écrit le fichier des résultats
 
     def init_var(self):
         "Initialise les différentes variables / instanciations du jeu"
@@ -26,35 +27,43 @@ class Game:
 
     def init_player(self):
         "Paramétrages des joueurs"
-        j1_param = {"c":1.4, "n_simul": 1000, "max_depth":4}
-        j1_type = input("Joueur 1, quel type de joueur (Humain, RandomBot, MonteCarlo, MinMax) : ")
+        j1_param = {"c":1.4, "n_simul": 1000, "max_depth":4, "nmix":10}
+        j1_type = input("Joueur 1, quel type de joueur (Humain, RandomBot, MonteCarlo, MinMax, Mix) : ")
 
-        if j1_type == "MonteCarlo":
+        if j1_type == "MonteCarlo" or j1_type=="Mix":
             c = input("Quel paramètre d'exploration c ? (défaut : 1.4) ")
             if c != "":
                 j1_param["c"] = int(c)
             n_simul = input("Combien d'échantillons ? (défaut : 1000) ")
             if n_simul != "":
                 j1_param["n_simul"] = int(n_simul)
-        elif j1_type == "MinMax":
+        if j1_type == "MinMax" or j1_type=="Mix":
             max_depth = input("Quelle profondeur maximale ? (défaut : 4) ")
             if max_depth != "":
                 j1_param["max_depth"] = int(max_depth)
+        if j1_type == "Mix":
+            nmix = input("Combien de résultats avec MC ? (défaut : 10) ")
+            if nmix := "":
+                j1_param["nmix"] = int(nmix)
+        print()
+        j2_param = {"c":1.4, "n_simul":1000, "max_depth":4, "nmix":10}
+        j2_type = input("Joueur 2, quel type de joueur (Humain, RandomBot, MonteCarlo, MinMax, Mix) : ")
 
-        j2_param = {"c":1.4, "n_simul":1000, "max_depth":4}
-        j2_type = input("Joueur 2, quel type de joueur (Humain, RandomBot, MonteCarlo, MinMax) : ")
-
-        if j2_type == "MonteCarlo":
+        if j2_type == "MonteCarlo" or j2_type=="Mix":
             c = input("Quel paramètre d'exploration c ? (défaut : 1.4) ")
             if c != "":
                 j2_param["c"] = int(c)
             n_simul = input("Combien d'échantillons ? (défaut : 1000) ")
             if n_simul != "":
                 j2_param["n_simul"] = int(n_simul)
-        elif j2_type == "MinMax":
+        if j2_type == "MinMax" or j2_type == "Mix":
             max_depth = input("Quelle profondeur maximale ? (défaut : 4) ")
             if max_depth != "":
                 j2_param["max_depth"] = int(max_depth)
+        if j2_type == "Mix":
+            nmix = input("Combien de résultats avec MC ? (défaut : 10) ")
+            if nmix := "":
+                j2_param["nmix"] = int(nmix)
 
         self.list_joueurs = [Joueur(j1_type, param=j1_param), Joueur(j2_type, param=j2_param)]
 
@@ -85,10 +94,10 @@ class Game:
     def ask_place(self, piece_idx):
         "Choix du placement de la pièce sur le plateau"
         i = self.list_joueurs[self.joueur_idx].choisir_place(self.plateau, self.pioche, piece_idx)
-        return i;
+        return i
 
     def place(self, place_idx, piece):
-        """Placement de la pièce d'indice piece_idx dans la pioche à la position place_idx"""
+        """Placement de la pièce piece dans la pioche à la position place_idx"""
         row_idx = place_idx % self.x
         column_idx = place_idx // self.x
         #Placement de la pièce
@@ -106,6 +115,14 @@ class Game:
             self.continuer = False
             self.egalite = True
 
+    def first_tour(self):
+        """Affichage des informations du premier tour (choix de la pièce uniquement)
+        """
+        print("/"*80 + f"\nTour du Joueur {self.joueur_idx+1}\n" + "-"*17)
+        self.list_joueurs[self.joueur_idx].debut_tour(self.plateau, self.pioche, None)
+        self.afficher_plateau()
+        self.afficher_pioche()
+
     def debut_tour(self, piece_idx=None):
         """Affichage des informations de début de tour
         Paramètre :
@@ -117,9 +134,8 @@ class Game:
         piece = self.pioche[piece_idx] if piece_idx != None else None
         if piece_idx != None: del self.pioche[piece_idx]
 
-        self.list_joueurs[self.joueur_idx].debut_tour(self.plateau, self.pioche, piece)
-
         print("/"*80 + f"\nTour du Joueur {self.joueur_idx+1}\n" + "-"*17)
+        self.list_joueurs[self.joueur_idx].debut_tour(self.plateau, self.pioche, piece)
         if piece_idx != None:
             print(f"Pièce à jouer : {piece}")
         self.afficher_plateau()
@@ -128,11 +144,25 @@ class Game:
     def game_launch(self):
         """ Lancement du jeu """
         i = 1
+        self.parties_restantes = self.parties_totales
+        self.wins = [0,0]
+
         print(f"PARTIE {i}\n" + "-"*9 + "\n")
+
         while self.parties_restantes > 0:
-            self.game_loop()
+            winner = self.game_loop() #On effectue une partie
+            self.wins[winner] += 1
             self.parties_restantes -= 1
         print("Toutes les parties ont été jouées")
+
+    def write(self):
+        f = open("resultats.csv", "w")
+        f.write(f"Nombre de parties total, {self.parties_totales}\n")
+        f.write(f"Nombre de parties nulles, {self.parties_restantes - self.wins[0] - self.wins[1]}\n")
+        f.write(f"J1 : Nombre de victoires, {self.wins[0]}\n")
+        f.write(f"J1 : Temps total de réflexion, {self.list_joueurs[0].reflexion_time}\n")
+        f.write(f"J2 : Nombre de victoires, {self.wins[1]}\n")
+        f.write(f"J2 : Temps total de réflexion, {self.list_joueurs[1].reflexion_time}\n")
 
     def game_loop(self):
         "Boucle de jeu"
@@ -144,7 +174,7 @@ class Game:
         self.egalite = False
 
         #Choix initial de la pièce
-        self.debut_tour() #Affichage des informations
+        self.first_tour() #Affichage des informations
 
         #Lancement de la boucle de jeu
         while self.continuer>0:
@@ -162,6 +192,7 @@ class Game:
 
             self.continuer -= 1
         if self.egalite == True:
-            print("Égalité, il ne reste plus aucune pice à jouer !")
-        else:
-            print(f"Fin de partie, le joueur {self.joueur_idx+1} a gagné !")
+            print("Égalité, il ne reste plus aucune pièce à jouer !")
+            return -1
+        print(f"Fin de partie, le joueur {self.joueur_idx+1} a gagné !")
+        return self.joueur_idx

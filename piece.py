@@ -58,7 +58,7 @@ def comp(L):
         booléen
     """
     assert(L!=[])
-    assert(type(L)==list)
+    assert(type(L)==list and all(type(e)==Piece) for e in L)
 
     if None in L:
          return False
