@@ -27,35 +27,43 @@ class Game:
 
     def init_player(self):
         "Paramétrages des joueurs"
-        j1_param = {"c":1.4, "n_simul": 1000, "max_depth":4}
-        j1_type = input("Joueur 1, quel type de joueur (Humain, RandomBot, MonteCarlo, MinMax) : ")
+        j1_param = {"c":1.4, "n_simul": 1000, "max_depth":4, "nmix":10}
+        j1_type = input("Joueur 1, quel type de joueur (Humain, RandomBot, MonteCarlo, MinMax, Mix) : ")
 
-        if j1_type == "MonteCarlo":
+        if j1_type == "MonteCarlo" or j1_type=="Mix":
             c = input("Quel paramètre d'exploration c ? (défaut : 1.4) ")
             if c != "":
                 j1_param["c"] = int(c)
             n_simul = input("Combien d'échantillons ? (défaut : 1000) ")
             if n_simul != "":
                 j1_param["n_simul"] = int(n_simul)
-        elif j1_type == "MinMax":
+        if j1_type == "MinMax" or j1_type=="Mix":
             max_depth = input("Quelle profondeur maximale ? (défaut : 4) ")
             if max_depth != "":
                 j1_param["max_depth"] = int(max_depth)
+        if j1_type == "Mix":
+            nmix = input("Combien de résultats avec MC ? (défaut : 10) ")
+            if nmix := "":
+                j1_param["nmix"] = int(nmix)
+        print()
+        j2_param = {"c":1.4, "n_simul":1000, "max_depth":4, "nmix":10}
+        j2_type = input("Joueur 2, quel type de joueur (Humain, RandomBot, MonteCarlo, MinMax, Mix) : ")
 
-        j2_param = {"c":1.4, "n_simul":1000, "max_depth":4}
-        j2_type = input("Joueur 2, quel type de joueur (Humain, RandomBot, MonteCarlo, MinMax) : ")
-
-        if j2_type == "MonteCarlo":
+        if j2_type == "MonteCarlo" or j2_type=="Mix":
             c = input("Quel paramètre d'exploration c ? (défaut : 1.4) ")
             if c != "":
                 j2_param["c"] = int(c)
             n_simul = input("Combien d'échantillons ? (défaut : 1000) ")
             if n_simul != "":
                 j2_param["n_simul"] = int(n_simul)
-        elif j2_type == "MinMax":
+        if j2_type == "MinMax" or j2_type == "Mix":
             max_depth = input("Quelle profondeur maximale ? (défaut : 4) ")
             if max_depth != "":
                 j2_param["max_depth"] = int(max_depth)
+        if j2_type == "Mix":
+            nmix = input("Combien de résultats avec MC ? (défaut : 10) ")
+            if nmix := "":
+                j2_param["nmix"] = int(nmix)
 
         self.list_joueurs = [Joueur(j1_type, param=j1_param), Joueur(j2_type, param=j2_param)]
 

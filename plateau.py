@@ -135,3 +135,7 @@ class RootState:
     def cloner(self):
         "Renvoie un clone de l'état de jeu"
         return RootState(self.plateau.cloner(), copy.deepcopy(self.pioche), self.piece_a_jouer)
+    
+    def appliquer(self, move):
+        self.plateau.placer
+        pass

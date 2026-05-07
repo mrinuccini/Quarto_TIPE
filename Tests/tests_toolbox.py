@@ -20,3 +20,8 @@ def tests():
     assert(convert_matrice(convert_matrice(M2))==M2)
 
 tests()
+
+
+l = [5,6,4,1,5,6,3]
+l_out = n_max(l, 3)
+print(l_out)

@@ -64,16 +64,25 @@ def backpropagate(node, result):
             node.win += 1
         node = node.parent
 
-def mcts(root_state:RootState, c, n_simul):
-    "Algorithme de Monte Carlo"
+def mcts(root_state:RootState, c, n_simul, n_res=1):
+    """Algorithme de Monte Carlo
+        Paramètres :
+            - root_state : état de jeu (plateau, pioche, pièce à jouer)
+            - c : coefficient exploration/exploitation
+            - n_simul : nombre de simulations effectuées
+            - n_res : nombre de coups demandés
+    """
     root = Node_MCTS(root_state)
     for _ in range(n_simul):
         node = selection(root, c)
         node = expansion(node)
         res = simulation(node.val)
         backpropagate(node, res)
-    best_node = max(root.enfants, key=lambda n: n.visited)
-    score = best_node.win / best_node.visited
-    best_move =  best_node.move
-    
-    return score, best_move
+
+    l_visited = [n.visited for n in root.enfants]
+    l_idx = n_max(l_visited, n_res)
+    best_nodes = [root.enfants[i] for i in l_idx]
+
+    best_moves = [n.move for n in best_nodes]
+    scores = [n.win / n.visited for n in best_nodes]
+    return scores, best_moves
