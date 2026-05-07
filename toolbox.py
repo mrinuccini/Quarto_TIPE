@@ -72,9 +72,9 @@ def n_max(l, n):
     l_out = [-1]*n
 
     for i in range(0, len(l)):
-        print(l_out)
+
         e = l[i]
-        print(e)
+
 
         for j in range(0, n-1):
             found = False
