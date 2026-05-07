@@ -1,6 +1,6 @@
 "Instanciaiton d'arbres"
 from Queue import *
-from math import log
+from math import log, sqrt
 
 class Node:
     "Instanciation d'un nœud"
@@ -73,19 +73,19 @@ class Node:
 
 class Node_MCTS(Node):
     "Instanciation d'un nœud pour MCTS"
-    def __init__(self, val, move=None, enfants=None, parent=None):
+    def __init__(self, move=None, parent=None):
         """ Paramètres :
                 - val : float
                         valeur du nœud
                 - enfants : liste des enfants
                 - parent : parent du noued
         """
-        super().__init__(val, enfants) #Initialisation classique d'un arbre
-
         self.parent = parent
         self.win = 0 #Nombre de victoires associé au noeud
         self.visited = 0 #Nombre de visites du noeud
         self.move = move #mouvement associé au noeud
+        self.untried_move = None
+        self.enfants = []
         
     def insert(self, node):
         super().insert(node)
@@ -102,7 +102,7 @@ class Node_MCTS(Node):
         """ Renvoie le UCT associé au noeud, au paramètre d'exploration c """
         if self.visited == 0:
             return float('inf')
-        return self.win / self.visited + c * log(self.parent.visited) / self.visited
+        return self.win / self.visited + c*sqrt(log(self.parent.visited) / self.visited)
 
     def get_parent(self):
         "Renvoie le parent du noeud"
