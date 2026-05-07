@@ -140,7 +140,7 @@ class Move:
     
     def get_piece_idx(self):
         "Renvoie l'indice de la pièce à jouer pour l'autre joueur"
-        return self.piece_idx
+        return self.piece_idx #test
 
 class RootState:
     "État de jeu (début du tour)"
