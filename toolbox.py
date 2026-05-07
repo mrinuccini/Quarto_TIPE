@@ -29,7 +29,8 @@ def nombre_caracteristiques_communes(pieces: list) -> int:
     """
     Renvoie le nombre de caractéristiques communes qu'on une liste de pièce
     """
-    
+    if all(e == None for e in pieces):
+        return 0
     if len(pieces) == 0: 
         return 0
 
@@ -91,3 +92,32 @@ def n_max(l, n):
                 break
     
     return l_out
+
+
+def max_k_v(L_keys, L_values):
+    """ Renvoie la clé maximale de L_keys et sa valeur associée dans L_values
+        Paramètres :
+            L_keys et L_values deux listes de même taille
+        Renvoie :
+            max_key, max_val
+    """
+    assert(type(L_keys)==list and type(L_values)==list and len(L_keys)==len(L_values))
+
+    if L_keys == []:
+        return
+    n = len(L_keys)
+    max_key = L_keys[0]
+    max_val = L_values[0]
+    for i in range(1, n):
+        key = L_keys[i]
+        val = L_values[i]
+        if key>max_key:
+            max_key = key
+            max_val = val
+    return max_key, max_val
+
+
+def test():
+    L1 = [5,6,7,8,9]
+    L2 = [7,8,4,5,6]
+    print(max_k_v(L1, L2))

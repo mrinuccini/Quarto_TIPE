@@ -94,10 +94,10 @@ class Game:
     def ask_place(self, piece_idx):
         "Choix du placement de la pièce sur le plateau"
         i = self.list_joueurs[self.joueur_idx].choisir_place(self.plateau, self.pioche, piece_idx)
-        return i;
+        return i
 
     def place(self, place_idx, piece):
-        """Placement de la pièce d'indice piece_idx dans la pioche à la position place_idx"""
+        """Placement de la pièce piece dans la pioche à la position place_idx"""
         row_idx = place_idx % self.x
         column_idx = place_idx // self.x
         #Placement de la pièce
@@ -115,6 +115,14 @@ class Game:
             self.continuer = False
             self.egalite = True
 
+    def first_tour(self):
+        """Affichage des informations du premier tour (choix de la pièce uniquement)
+        """
+        print("/"*80 + f"\nTour du Joueur {self.joueur_idx+1}\n" + "-"*17)
+        self.list_joueurs[self.joueur_idx].debut_tour(self.plateau, self.pioche, None)
+        self.afficher_plateau()
+        self.afficher_pioche()
+
     def debut_tour(self, piece_idx=None):
         """Affichage des informations de début de tour
         Paramètre :
@@ -126,9 +134,8 @@ class Game:
         piece = self.pioche[piece_idx] if piece_idx != None else None
         if piece_idx != None: del self.pioche[piece_idx]
 
-        self.list_joueurs[self.joueur_idx].debut_tour(self.plateau, self.pioche, piece)
-
         print("/"*80 + f"\nTour du Joueur {self.joueur_idx+1}\n" + "-"*17)
+        self.list_joueurs[self.joueur_idx].debut_tour(self.plateau, self.pioche, piece)
         if piece_idx != None:
             print(f"Pièce à jouer : {piece}")
         self.afficher_plateau()
@@ -167,7 +174,7 @@ class Game:
         self.egalite = False
 
         #Choix initial de la pièce
-        self.debut_tour() #Affichage des informations
+        self.first_tour() #Affichage des informations
 
         #Lancement de la boucle de jeu
         while self.continuer>0:
