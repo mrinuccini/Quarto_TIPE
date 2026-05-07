@@ -37,7 +37,8 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
                     
                     if f_score > max_eval:
                         max_eval = f_score
-                        meilleur_coup = (piece_id, case)
+                        meilleur_coup = Move(case, piece_id) #+
+                        #- meilleur_coup = (piece_id, case)
 
                     if max_eval >= beta:
                         plateau.placer_piece_1D(case, None) # Backtracking on annule le coup qu'on avait joué
@@ -65,7 +66,8 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
 
                     if f_score < min_eval:
                         min_eval = f_score
-                        meilleur_coup = (piece_id, case)
+                        meilleur_coup = Move(case, piece_id) #+
+                        #- meilleur_coup = (piece_id, case)
 
                     if min_eval <= alpha:
                         plateau.placer_piece_1D(case, None) # Backtracking on annule le coup qu'on avait joué

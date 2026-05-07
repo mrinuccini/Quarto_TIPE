@@ -21,9 +21,9 @@ class Joueur:
         self.type = typ
         self.niveau = niveau
 
-        self.reflexion_time = 0
+        self.reflexion_time = 0 #Temps de réflexion total sur la partie
 
-        self.best_move = None
+        self.best_move :Move= None #Meilleur mouvement
 
         if self.type == "MinMax" or self.type == "Mix":
             self.max_depth = param["max_depth"]
@@ -32,24 +32,30 @@ class Joueur:
             self.n_simul = param["n_simul"]
         if self.type == "Mix":
             self.nmix = param['nmix']
-            
+
     def debut_tour(self, plateau: Plateau, pioche: list, piece_a_jouer: Piece) -> None:
         """
             Utilisé au début du tour pour les IA afin de générer les arbres de jeux, etc...
         """
         if self.type in ("MinMax", "MonteCarlo", "Mix"):
             t1 = time.time()
-            if self.type == "MinMax":
-                score, self.best_move = minimax(plateau, pioche, piece_a_jouer, self.max_depth, evaluate1, float("-inf"), float("inf"), maximise=True)
-            elif self.type == "MonteCarlo":
-                scores, self.best_moves = mcts(RootState(plateau, pioche, piece_a_jouer), self.c, self.n_simul)
-                self.best_move = self.best_moves[0]
-                score = scores[0]
-            elif self.type == "Mix":
-                score, self.best_move = xterminator(RootState(plateau, pioche, piece_a_jouer), self.c, self.n_simul, self.nmix, self.max_depth)
+
+            match self.type:
+                case "MinMax":
+                    score, self.best_move = minimax(plateau, pioche, piece_a_jouer, self.max_depth, evaluate1, float("-inf"), float("inf"), maximise=True)
+            
+                case "MonteCarlo":
+                    scores, self.best_moves = mcts(RootState(plateau, pioche, piece_a_jouer), self.c, self.n_simul)
+                    self.best_move = self.best_moves[0]
+                    score = scores[0]
+            
+                case "Mix":
+                    score, self.best_move = xterminator(RootState(plateau, pioche, piece_a_jouer), self.c, self.n_simul, self.nmix, self.max_depth)
+            
             t2 = time.time()
             delta_t = t2 - t1
             self.reflexion_time += delta_t
+
             print(f"Score du coup trouvé : {score} (coup : {self.best_move}). Temps de calcul : {(delta_t):.3f}s")
 
     def choisir_piece(self, plateau, pioche: list):
@@ -72,11 +78,12 @@ class Joueur:
         elif self.type == "RandomBot":
             i = random.choice(list(pioche.keys()))
             return i
+        
         elif self.type in ("MinMax", "MonteCarlo", "Mix"):
-            if self.best_move == None or self.best_move[0] == None:
+            if self.best_move == None or self.best_move.get_piece_idx() == None:
                 return random.choice(list(pioche.keys()))
             else:
-                return self.best_move[0]
+                return self.best_move.get_piece_idx()
 
     def choisir_place(self, plateau, pioche, piece_idx):
         """ Choix du placement de la pièce selon le type du joueur """
@@ -99,8 +106,9 @@ class Joueur:
         elif self.type == "RandomBot":
             i = random.choice(plateau.recuperer_cases_vides())
             return i
+        
         elif self.type in ("MinMax", "MonteCarlo", "Mix"):
-            if self.best_move == None or self.best_move[1] == None:
+            if self.best_move == None or self.best_move.get_place() == None:
                 return random.choice(plateau.recuperer_cases_vides())
             else:
-                return self.best_move[1]
+                return self.best_move.get_place()

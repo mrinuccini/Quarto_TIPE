@@ -22,10 +22,10 @@ def xterminator(root_state:RootState, c, n_simul, n_res, max_depht):
     scores = []
     best_moves = []
 
-    i=0
     for move in moves: #Pour chaque positions choisies
         state = root_state.cloner()
-        piece_idx, place  = move
+
+        piece_idx, place  = move.get_piece_idx(), move.get_place()
         plateau = state.plateau
         pioche = state.pioche
         piece = state.piece_a_jouer
@@ -44,8 +44,6 @@ def xterminator(root_state:RootState, c, n_simul, n_res, max_depht):
         #On récupère les résultats
         scores += [score]
         best_moves += [move]
-
-        i+=1
 
     score, best_move = max_k_v(scores, best_moves)
     return score, best_move
