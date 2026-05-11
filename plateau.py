@@ -39,18 +39,14 @@ class Plateau:
         return self.recuperer_piece(id % self.x, id // self.x)
 
     def recuperer_piece(self, x:int, y: int) -> Piece:
-        """
-            Récupère la pièce à la position (x, y)
-        """
+        """ Récupère la pièce à la position (x, y) """
         assert(0 <= x < self.x)
         assert(0 <= y < self.y)
 
         return self.arr[y][x]
 
     def placer_piece(self, x: int, y: int, piece: Piece) -> None:
-        """
-            Permet de placer une pièce à la position (x, y) sur le plateau
-        """
+        """ Permet de placer une pièce à la position (x, y) sur le plateau """
         assert(0 <= x < self.x)
         assert(0 <= y < self.y)
 
@@ -61,15 +57,11 @@ class Plateau:
         self.arr[y][x] = piece
 
     def placer_piece_1D(self, id: int, piece: Piece) -> None:
-        """
-            Place la pièce à la coordonée id en une dimension
-        """
+        """ Place la pièce à la coordonée id en une dimension """
         return self.placer_piece(id % self.x, id // self.x, piece)
 
     def recuperer_lignes_diagonales(self) -> list:
-        """
-            Renvoie une liste contenant les quatres lignes, quatres colonnes et deux diagonales
-        """
+        """ Renvoie une liste contenant les quatres lignes, quatres colonnes et deux diagonales """
         out = [line[:] for line in self.arr] # Lignes
 
         for column in convert_matrice(self.arr): # Colonnes
@@ -87,23 +79,18 @@ class Plateau:
         return out
 
     def verifier_alignements(self) -> bool:
-        """
-            Vérifie si le plateau contient un aligments (mais ne précise pas où se trouve cet alignement !)
-        """
+        """ Vérifie si le plateau contient un aligments (mais ne précise pas où se trouve cet alignement !) """
         lignes_colonnes_diagonales = self.recuperer_lignes_diagonales()
         return any(comp(lcd) for lcd in lignes_colonnes_diagonales)
 
     def recuperer_cases_vides(self) -> list:
-        """
-            Renvoie l'ensemble des cases vides sous la forme d'une liste avec leur indice
-        """
+        """ Renvoie l'ensemble des cases vides sous la forme d'une liste avec leur indice """
+        return [(x+(y*self.x)) for x in range(self.x) for y in range(self.y) if self.arr[y][x] == None]
         empty = []
-
         for x in range(0, self.x):
             for y in range(0, self.y):
                 if self.arr[y][x] == None:
                     empty.append(x + (y * self.x))
-
         return empty
 
     def __repr__(self) -> str:
@@ -143,7 +130,7 @@ class Move:
         return self.piece_idx #test
 
 class RootState:
-    "État de jeu (début du tour)"
+    "État de jeu (en début du tour) = plateau + pioche + une pièce à placer"
     def __init__(self, plateau:Plateau, pioche:dict, piece_a_jouer:Piece):
         self.plateau = plateau
         self.pioche = copy.deepcopy(pioche)
