@@ -8,7 +8,8 @@ def selection(node:Node_MCTS, c, state):
     while node.enfants != [] and (node.untried_move is not None and node.untried_move == []):
         node = max(node.enfants, key=lambda v: v.get_ucb(c)) #On cherche la feuille avec la valeur ucb maximale
 
-        piece_id, case = node.move
+        move:Move = node.move
+        piece_id, case = move.get_piece_idx(), move.get_place()
 
         state.plateau.placer_piece_1D(case, state.piece_a_jouer)
         state.piece_a_jouer = state.pioche.pop(piece_id)
@@ -20,14 +21,14 @@ def expansion(node:Node_MCTS, state: RootState):
         cases = state.plateau.recuperer_cases_vides()
         pieces = list(state.pioche.keys())
 
-        node.untried_move = [(p, c) for c in cases for p in pieces]
+        node.untried_move = [Move(c, p) for c in cases for p in pieces]
         shuffle(node.untried_move)
 
     if not node.untried_move:
         return node
 
-    coup = node.untried_move.pop()
-    piece_id, case = coup
+    coup: Move = node.untried_move.pop()
+    piece_id, case = coup.get_piece_idx(), coup.get_place()
 
     piece_a_jouer = state.piece_a_jouer
 
@@ -83,7 +84,8 @@ def simulation(state:RootState):
         if safe_pieces_list:
             piece_id_choisie = choice(safe_pieces_list)
         else:
-            piece_id_choisie = choice(dangerous_pieces_list)
+            if dangerous_pieces_list != []:
+                piece_id_choisie = choice(dangerous_pieces_list)
 
         state.plateau.placer_piece_1D(case, state.piece_a_jouer)
         if piece_id_choisie is not None: state.piece_a_jouer = state.pioche.pop(piece_id_choisie)
@@ -115,5 +117,7 @@ def mcts(root_state:RootState, c, n_simul):
 
         backpropagate(node, res)
 
-    best_move = max(root.enfants, key=lambda n: n.visited).move
-    return None, best_move
+    best_move = [max(root.enfants, key=lambda n: n.visited).move]
+
+    best_score = [max(root.enfants, key=lambda n: n.visited).visited]
+    return best_score, best_move

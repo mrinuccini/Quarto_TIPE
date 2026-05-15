@@ -13,64 +13,57 @@ class Game:
         assert(type(n)==int and n>0)
         assert(type(x)==type(y)==int and x>0 and y>0)
 
-        self.parties_totales = n
-        self.x, self.y = x, y
+        self.parties_totales = n #Nombre de parties totales
+        self.x, self.y = x, y #Nombre de colonnes et de lignes du plateau
         self.game_launch() #On lance le jeu
         self.write() #On écrit le fichier des résultats
 
+    def get_nb_of_columns(self):
+        "Renvoie le nombre de colonnes du plateau"
+        return self.x
+
+    def get_nb_of_lines(self):
+        "Renvoie le nombre de lignes du plateau"
+        return self.y
+    
     def init_var(self):
         "Initialise les différentes variables / instanciations du jeu"
-        self.plateau = Plateau(self.x,self.y) #Plateau
+        self.plateau = Plateau(self.get_nb_of_columns(), self.get_nb_of_lines()) #Plateau
         self.generer_pioche() #Pioche
 
         self.init_player()
 
     def init_player(self):
         "Paramétrages des joueurs"
-        j1_param = {"c":1.4, "n_simul": 1000, "max_depth":4, "nmix":10}
-        j1_type = input("Joueur 1, quel type de joueur (Humain, RandomBot, MonteCarlo, MinMax, Mix) : ")
+        self.list_joueurs = []
+        for i in range(2):
+            param = {"c":1.0, "n_simul": 1000, "max_depth":4, "nmix":10}
+            type = input(f"Joueur {i+1}, quel type de joueur (Humain, RandomBot, MonteCarlo, MinMax, Mix) : ")
+            if type == "":
+                type = "Humain"
 
-        if j1_type == "MonteCarlo" or j1_type=="Mix":
-            c = input("Quel paramètre d'exploration c ? (défaut : 1.4) ")
-            if c != "":
-                j1_param["c"] = int(c)
-            n_simul = input("Combien d'échantillons ? (défaut : 1000) ")
-            if n_simul != "":
-                j1_param["n_simul"] = int(n_simul)
-        if j1_type == "MinMax" or j1_type=="Mix":
-            max_depth = input("Quelle profondeur maximale ? (défaut : 4) ")
-            if max_depth != "":
-                j1_param["max_depth"] = int(max_depth)
-        if j1_type == "Mix":
-            nmix = input("Combien de résultats avec MC ? (défaut : 10) ")
-            if nmix := "":
-                j1_param["nmix"] = int(nmix)
-        print()
-        j2_param = {"c":1.4, "n_simul":1000, "max_depth":4, "nmix":10}
-        j2_type = input("Joueur 2, quel type de joueur (Humain, RandomBot, MonteCarlo, MinMax, Mix) : ")
-
-        if j2_type == "MonteCarlo" or j2_type=="Mix":
-            c = input("Quel paramètre d'exploration c ? (défaut : 1.4) ")
-            if c != "":
-                j2_param["c"] = int(c)
-            n_simul = input("Combien d'échantillons ? (défaut : 1000) ")
-            if n_simul != "":
-                j2_param["n_simul"] = int(n_simul)
-        if j2_type == "MinMax" or j2_type == "Mix":
-            max_depth = input("Quelle profondeur maximale ? (défaut : 4) ")
-            if max_depth != "":
-                j2_param["max_depth"] = int(max_depth)
-        if j2_type == "Mix":
-            nmix = input("Combien de résultats avec MC ? (défaut : 10) ")
-            if nmix := "":
-                j2_param["nmix"] = int(nmix)
-
-        self.list_joueurs = [Joueur(j1_type, param=j1_param), Joueur(j2_type, param=j2_param)]
+            if type in ("MonteCarlo", "Mix"):
+                c = input(f"Quel paramètre d'exploration c ? (défaut : {param["c"]}) ")
+                if c != "":
+                    param["c"] = int(c)
+                n_simul = input(f"Combien d'échantillons ? (défaut : {param["n_simul"]}) ")
+                if n_simul != "":
+                    param["n_simul"] = int(n_simul)
+            if type in ("MinMax", "Mix"):
+                max_depth = input(f"Quelle profondeur maximale ? (défaut : {param["max_depth"]}) ")
+                if max_depth != "":
+                    param["max_depth"] = int(max_depth)
+            if type == "Mix":
+                nmix = input(f"Combien de résultats avec MC ? (défaut : {param["nmix"]}) ")
+                if nmix := "":
+                    param["nmix"] = int(nmix)
+            self.list_joueurs += [Joueur(type, param=param)]
+            print()
 
     def generer_pioche(self):
         "Génère la pioche du jeu (initialement remplie de toutes les pièces)"
         self.pioche = {}
-        for i in range(16):
+        for i in range(self.get_nb_of_columns()*self.get_nb_of_lines()):
             self.pioche[i] = Piece((i//8)%2, (i//4)%2,(i//2)%2, i%2)
     
     def afficher_pioche(self):
@@ -98,8 +91,8 @@ class Game:
 
     def place(self, place_idx, piece):
         """Placement de la pièce piece dans la pioche à la position place_idx"""
-        row_idx = place_idx % self.x
-        column_idx = place_idx // self.x
+        row_idx = place_idx % self.get_nb_of_columns()
+        column_idx = place_idx // self.get_nb_of_columns()
         #Placement de la pièce
 
         self.plateau.placer_piece(row_idx, column_idx, piece)
@@ -156,6 +149,7 @@ class Game:
         print("Toutes les parties ont été jouées")
 
     def write(self):
+        "Écrit le fichier des résultats de la simulation"
         f = open("resultats.csv", "w")
         f.write(f"Nombre de parties total, {self.parties_totales}\n")
         f.write(f"Nombre de parties nulles, {self.parties_restantes - self.wins[0] - self.wins[1]}\n")
@@ -166,7 +160,6 @@ class Game:
 
     def game_loop(self):
         "Boucle de jeu"
-
         self.init_var() #Initialisation des variables de jeu
 
         self.continuer = 100 #Condition d'arrêt
@@ -194,5 +187,5 @@ class Game:
         if self.egalite == True:
             print("Égalité, il ne reste plus aucune pièce à jouer !")
             return -1
-        print(f"Fin de partie, le joueur {self.joueur_idx+1} a gagné !")
+        print(f"Fin de partie, le joueur {self.joueur_idx+1} ({self.list_joueurs[self.joueur_idx].type}) a gagné !")
         return self.joueur_idx
