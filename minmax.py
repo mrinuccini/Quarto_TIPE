@@ -6,6 +6,7 @@ from math import inf
 
 
 SCORE_VICTOIRE = 100000
+transposition_table = {}
 
 def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: int, f_eval, alpha, beta, maximise: bool=True) -> tuple:
     """
@@ -18,6 +19,10 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
         return f_eval(plateau, pioche, piece_a_placer) * (-1 if maximise else 1), (None, None)
     else:
         meilleur_coup = None
+
+        canonical_board = plateau.get_canonical_board()
+        if canonical_board in transposition_table: 
+            return transposition_table[canonical_board]
 
         if maximise:
             max_eval = -200000
@@ -45,6 +50,10 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
                         return max_eval, meilleur_coup
 
                 plateau.placer_piece_1D(case, None) # Backtracking on annule le coup qu'on avait joué
+
+            plateau.placer_piece_1D(meilleur_coup.place, piece_a_placer)
+            transposition_table[plateau.get_canonical_board()] = max_eval, meilleur_coup
+            plateau.placer_piece_1D(meilleur_coup.place, None)
 
             return max_eval, meilleur_coup
         else:
@@ -74,6 +83,10 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
                         return min_eval, meilleur_coup
 
                 plateau.placer_piece_1D(case, None) # Backtracking on annule le coup qu'on avait joué
+
+            plateau.placer_piece_1D(meilleur_coup.place, piece_a_placer)
+            transposition_table[plateau.get_canonical_board()] = min_eval, meilleur_coup
+            plateau.placer_piece_1D(meilleur_coup.place, None)
 
             return min_eval, meilleur_coup
 

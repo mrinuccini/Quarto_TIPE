@@ -43,18 +43,18 @@ class Game:
                 type = "Humain"
 
             if type in ("MonteCarlo", "Mix"):
-                c = input(f"Quel paramètre d'exploration c ? (défaut : {param["c"]}) ")
+                c = input(f"Quel paramètre d'exploration c ? (défaut : {param['c']}) ")
                 if c != "":
                     param["c"] = int(c)
-                n_simul = input(f"Combien d'échantillons ? (défaut : {param["n_simul"]}) ")
+                n_simul = input(f"Combien d'échantillons ? (défaut : {param['n_simul']}) ")
                 if n_simul != "":
                     param["n_simul"] = int(n_simul)
             if type in ("MinMax", "Mix"):
-                max_depth = input(f"Quelle profondeur maximale ? (défaut : {param["max_depth"]}) ")
+                max_depth = input(f"Quelle profondeur maximale ? (défaut : {param['max_depth']}) ")
                 if max_depth != "":
                     param["max_depth"] = int(max_depth)
             if type == "Mix":
-                nmix = input(f"Combien de résultats avec MC ? (défaut : {param["nmix"]}) ")
+                nmix = input(f"Combien de résultats avec MC ? (défaut : {param['nmix']}) ")
                 if nmix := "":
                     param["nmix"] = int(nmix)
             self.list_joueurs += [Joueur(type, param=param)]

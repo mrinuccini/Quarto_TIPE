@@ -46,7 +46,9 @@ class Piece:
         """
 
         return str
-
+    
+    def to_tuple(self):
+        return (self.taille, self.couleur, self.forme, self.taille)
 
 ##Fonctions sur les pièces
 def comp(L):
