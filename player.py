@@ -33,7 +33,7 @@ class Joueur:
         if self.type == "Mix":
             self.nmix = param['nmix']
 
-    def debut_tour(self, plateau: Plateau, pioche: list, piece_a_jouer: Piece) -> None:
+    def debut_tour(self, plateau: Plateau, pioche: list, piece_a_jouer: Piece, zb: Zobrist) -> None:
         """
             Utilisé au début du tour pour les IA afin de générer les arbres de jeux, etc...
         """
@@ -42,13 +42,21 @@ class Joueur:
 
             match self.type:
                 case "MinMax":
-                    score, self.best_move = minimax(plateau, pioche, piece_a_jouer, self.max_depth, evaluate1, float("-inf"), float("inf"), maximise=True)
-            
+                    score = 0
+                    meilleur_coup_global = None
+
+                    for profondeur in range(1, self.max_depth + 1):
+                        score, meilleur_coup_profondeur = minimax(plateau, pioche, piece_a_jouer, profondeur, evaluate1, float("-inf"), float("inf"), zb, maximise=True)
+                        
+                        if meilleur_coup_profondeur is not None:
+                            meilleur_coup_global = meilleur_coup_profondeur
+                            self.best_move = meilleur_coup_global
+                            
+                        print(f"Profondeur {profondeur} atteinte. Taille de la table : {len(transposition_table)}")
                 case "MonteCarlo":
                     scores, self.best_moves = mcts(RootState(plateau, pioche, piece_a_jouer), self.c, self.n_simul)
                     self.best_move = self.best_moves[0]
                     score = scores[0]
-            
                 case "Mix":
                     score, self.best_move = xterminator(RootState(plateau, pioche, piece_a_jouer), self.c, self.n_simul, self.nmix, self.max_depth)
             

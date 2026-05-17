@@ -1,28 +1,29 @@
 #Importations
 from plateau import *
 from Tree import *
-import copy
 from math import inf
+from zobrist import Zobrist
 
 
 SCORE_VICTOIRE = 100000
 transposition_table = {}
 
-def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: int, f_eval, alpha, beta, maximise: bool=True) -> tuple:
+def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: int, f_eval, alpha: int, beta: int, zb: Zobrist, maximise: bool=True) -> tuple:
     """
         Applique l'algorithme minmax à l'arbre de racine node
 
-        Pour l'instant, algorithme uniquement avec un elagage alpha-beta classique (pas de prise en compte des symétries)
+        Présence d'un élagage alpha et beta ainsi que d'une prise en compte des symétries/transpositions
     """
 
     if max_depth == 0 or len(plateau.recuperer_cases_vides()) == 0: 
-        return f_eval(plateau, pioche, piece_a_placer) * (-1 if maximise else 1), (None, None)
+        return f_eval(plateau, pioche, piece_a_placer) * (-1 if maximise else 1), Move(None, None)
     else:
         meilleur_coup = None
 
-        canonical_board = plateau.get_canonical_board()
-        if canonical_board in transposition_table: 
-            return transposition_table[canonical_board]
+        if zb.get_canonical_hash() in transposition_table:
+            data = transposition_table[zb.get_canonical_hash()]
+            if data["profondeur"] >= max_depth:
+                return data["score"], data["move"]
 
         if maximise:
             max_eval = -200000
@@ -32,14 +33,21 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
 
                 if plateau.verifier_alignements():
                     plateau.placer_piece_1D(case, None)
-                    return SCORE_VICTOIRE + max_depth, (None, case) # le fait d'ajouter max_depth permet de s'assurer que minmax préferera un coup qui mène rapidement à la victoire plutôt qu'on coup qui mène doucement à la victoire
+                    return SCORE_VICTOIRE + max_depth, Move(case, None) # le fait d'ajouter max_depth permet de s'assurer que minmax préferera un coup qui mène rapidement à la victoire plutôt qu'on coup qui mène doucement à la victoire
                 
                 for piece_id, piece in list(pioche.items()):
                     del pioche[piece_id]
                     
-                    f_score, _ = minimax(plateau, pioche, piece, (max_depth - 1), f_eval, max(alpha, max_eval), beta, maximise=False)
+                    hash_sauvegarde = list(zb.hash_actuels)
+                    piece_en_main_sauvegarde = zb.piece_en_main
+                    zb.jouer_coup(case, piece_id)
+
+                    f_score, _ = minimax(plateau, pioche, piece, (max_depth - 1), f_eval, max(alpha, max_eval), beta, zb, maximise=False)
                     pioche[piece_id] = piece # backtracking, on annule la pièce qu'on avait choisit
                     
+                    zb.hash_actuels = hash_sauvegarde
+                    zb.piece_en_main = piece_en_main_sauvegarde
+
                     if f_score > max_eval:
                         max_eval = f_score
                         meilleur_coup = Move(case, piece_id) #+
@@ -51,10 +59,7 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
 
                 plateau.placer_piece_1D(case, None) # Backtracking on annule le coup qu'on avait joué
 
-            plateau.placer_piece_1D(meilleur_coup.place, piece_a_placer)
-            transposition_table[plateau.get_canonical_board()] = max_eval, meilleur_coup
-            plateau.placer_piece_1D(meilleur_coup.place, None)
-
+            transposition_table[zb.get_canonical_hash()] = {"profondeur": max_depth, "score": max_eval, "move": meilleur_coup}
             return max_eval, meilleur_coup
         else:
             min_eval = 200000
@@ -64,14 +69,20 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
 
                 if plateau.verifier_alignements():
                     plateau.placer_piece_1D(case, None)
-                    return -SCORE_VICTOIRE - max_depth, (None, case) # le fait d'enlever max_depth permet de s'assurer que minmax préferera un coup qui mène rapidement à la victoire plutôt qu'on coup qui mène doucement à la victoire
+                    return -SCORE_VICTOIRE - max_depth, Move(case, None) # le fait d'enlever max_depth permet de s'assurer que minmax préferera un coup qui mène rapidement à la victoire plutôt qu'on coup qui mène doucement à la victoire
                 
                 for piece_id, piece in list(pioche.items()):
                     del pioche[piece_id]
 
-                    f_score, _ = minimax(plateau, pioche, piece, (max_depth - 1), f_eval, alpha, min(beta, min_eval), maximise=True)
+                    hash_sauvegarde = list(zb.hash_actuels)
+                    piece_en_main_sauvegarde = zb.piece_en_main
+                    zb.jouer_coup(case, piece_id)
+
+                    f_score, _ = minimax(plateau, pioche, piece, (max_depth - 1), f_eval, alpha, min(beta, min_eval), zb, maximise=True)
                     
                     pioche[piece_id] = piece # backtracking, on annule la pièce qu'on avait choisit
+                    zb.hash_actuels = hash_sauvegarde
+                    zb.piece_en_main = piece_en_main_sauvegarde
 
                     if f_score < min_eval:
                         min_eval = f_score
@@ -84,10 +95,7 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
 
                 plateau.placer_piece_1D(case, None) # Backtracking on annule le coup qu'on avait joué
 
-            plateau.placer_piece_1D(meilleur_coup.place, piece_a_placer)
-            transposition_table[plateau.get_canonical_board()] = min_eval, meilleur_coup
-            plateau.placer_piece_1D(meilleur_coup.place, None)
-
+            transposition_table[zb.get_canonical_hash()] = {"profondeur": max_depth, "score": min_eval, "move": meilleur_coup}
             return min_eval, meilleur_coup
 
 def evaluate1(plateau: Plateau, pioche: list, piece_a_donner: Piece):

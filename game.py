@@ -1,5 +1,6 @@
 from player import *
 from time import sleep
+from zobrist import Zobrist
 
 class Game:
     #Instanciation du jeux
@@ -13,6 +14,7 @@ class Game:
         assert(type(n)==int and n>0)
         assert(type(x)==type(y)==int and x>0 and y>0)
 
+        self.zb = Zobrist()
         self.parties_totales = n #Nombre de parties totales
         self.x, self.y = x, y #Nombre de colonnes et de lignes du plateau
         self.game_launch() #On lance le jeu
@@ -82,11 +84,13 @@ class Game:
     def ask_pioche(self):
         "Demande au joueur de sélectionner une pièce dans la pioche"
         i = self.list_joueurs[self.joueur_idx].choisir_piece(self.plateau, self.pioche)
+        self.zb.choisir_piece(i)
         return i
 
     def ask_place(self, piece_idx):
         "Choix du placement de la pièce sur le plateau"
         i = self.list_joueurs[self.joueur_idx].choisir_place(self.plateau, self.pioche, piece_idx)
+        self.zb.placer_piece(i)
         return i
 
     def place(self, place_idx, piece):
@@ -109,10 +113,11 @@ class Game:
             self.egalite = True
 
     def first_tour(self):
-        """Affichage des informations du premier tour (choix de la pièce uniquement)
+        """
+        Affichage des informations du premier tour (choix de la pièce uniquement)
         """
         print("/"*80 + f"\nTour du Joueur {self.joueur_idx+1}\n" + "-"*17)
-        self.list_joueurs[self.joueur_idx].debut_tour(self.plateau, self.pioche, None)
+        self.list_joueurs[self.joueur_idx].debut_tour(self.plateau, self.pioche, None, self.zb)
         self.afficher_plateau()
         self.afficher_pioche()
 
@@ -128,7 +133,7 @@ class Game:
         if piece_idx != None: del self.pioche[piece_idx]
 
         print("/"*80 + f"\nTour du Joueur {self.joueur_idx+1}\n" + "-"*17)
-        self.list_joueurs[self.joueur_idx].debut_tour(self.plateau, self.pioche, piece)
+        self.list_joueurs[self.joueur_idx].debut_tour(self.plateau, self.pioche, piece, self.zb)
         if piece_idx != None:
             print(f"Pièce à jouer : {piece}")
         self.afficher_plateau()
@@ -187,5 +192,7 @@ class Game:
         if self.egalite == True:
             print("Égalité, il ne reste plus aucune pièce à jouer !")
             return -1
+        
+        print(len(transposition_table))
         print(f"Fin de partie, le joueur {self.joueur_idx+1} ({self.list_joueurs[self.joueur_idx].type}) a gagné !")
         return self.joueur_idx

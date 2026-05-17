@@ -87,27 +87,6 @@ class Plateau:
         """ Renvoie l'ensemble des cases vides sous la forme d'une liste avec leur indice """
         return [(x+(y*self.x)) for x in range(self.x) for y in range(self.y) if self.arr[y][x] == None]
 
-    def get_canonical_board(self) -> int:
-        """
-            Calcule un identifiant qui correspond à un tableau ainsi que toutes ses symétries
-        """
-        symetries = []
-
-        current = tuple([tuple([piece.to_tuple() if piece is not None else (-1, -1, -1, -1) for piece in col]) for col in self.arr])
-        for _ in range(1, 4):
-            symetries.append(current)
-            symetries.append(self.mirror(current))
-            current = self.rotate90(current)
-
-        return hash(min(symetries))
-
-    def mirror(self, arr: list) -> tuple:
-        return tuple(tuple(col) for col in reversed(arr))
-    
-    def rotate90(self, arr:list) -> tuple:
-        return tuple(reversed(tuple(zip(*arr))))
-
-
     def __repr__(self) -> str:
         out = ""
         for y in range(0, self.y):
