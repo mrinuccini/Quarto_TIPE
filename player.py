@@ -6,11 +6,14 @@ from montecarlo import *
 from xterminator import *
 import random
 import time
+import pickle
+import os
 
 TYPES = ["Humain", "MonteCarlo", "MinMax", "RandomBot", "Mix"]
 
 class Joueur:
     def __init__(self, typ="Humain", niveau=1, param={}):
+        global transposition_table
         """ Paramètre :
                 type : chaîne de caractères, élément de TYPES
                        type de joueur
@@ -27,6 +30,10 @@ class Joueur:
 
         if self.type == "MinMax" or self.type == "Mix":
             self.max_depth = param["max_depth"]
+            if os.path.isfile("transpositions.tbl"):
+                with open("transpositions.tbl", 'rb') as tbl:
+                    transposition_table = pickle.load(tbl)
+                    print(f"loaded transposition table of size : {len(transposition_table)}")
         if self.type == "MonteCarlo" or self.type=="Mix":
             self.c = param["c"]
             self.n_simul = param["n_simul"]

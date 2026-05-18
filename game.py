@@ -1,6 +1,7 @@
 from player import *
 from time import sleep
 from zobrist import Zobrist
+import pickle
 
 class Game:
     #Instanciation du jeux
@@ -193,6 +194,10 @@ class Game:
             print("Égalité, il ne reste plus aucune pièce à jouer !")
             return -1
         
-        print(len(transposition_table))
+        """
+        with open("transpositions.tbl", 'wb') as tbl:
+            pickle.dump(transposition_table, tbl, protocol=pickle.HIGHEST_PROTOCOL)
+        """
+        
         print(f"Fin de partie, le joueur {self.joueur_idx+1} ({self.list_joueurs[self.joueur_idx].type}) a gagné !")
         return self.joueur_idx

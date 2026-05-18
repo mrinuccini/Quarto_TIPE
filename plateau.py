@@ -15,6 +15,7 @@ class Plateau:
         assert(y > 0)
 
         self.arr = [[None for i in range(0, x)] for i in range(0, y)]
+        self.chemins = self.generer_chemins()
         self.x = x
         self.y = y
 
@@ -60,28 +61,58 @@ class Plateau:
         """ Place la pièce à la coordonée id en une dimension """
         return self.placer_piece(id % self.x, id // self.x, piece)
 
+    def generer_chemins(self):
+        chemins = []
+        for y in range(0, 4): chemins.append([(x, y) for x in range(4)]) # Lignes
+        for x in range(0, 4): chemins.append([(x, y) for y in range(4)]) # Colonnes
+
+        # Diagonales
+        chemins.append([(0, 0), (1, 1), (2, 2), (3, 3)])
+        chemins.append([(0, 3), (1, 2), (2, 1), (3, 0)])
+
+        return chemins
+
+
     def recuperer_lignes_diagonales(self) -> list:
         """ Renvoie une liste contenant les quatres lignes, quatres colonnes et deux diagonales """
-        out = [line[:] for line in self.arr] # Lignes
+        # lignes
+        out = [self.arr[0], self.arr[1], self.arr[2], self.arr[3]]
 
-        for column in convert_matrice(self.arr): # Colonnes
-            out.append(column)
+        # Colonnes
+        out.extend([
+            [self.arr[0][0], self.arr[1][0], self.arr[2][0], self.arr[3][0]],
+            [self.arr[0][1], self.arr[1][1], self.arr[2][1], self.arr[3][1]], 
+            [self.arr[0][2], self.arr[1][2], self.arr[2][2], self.arr[3][2]],
+            [self.arr[0][3], self.arr[1][3], self.arr[2][3], self.arr[3][3]]
+        ])
 
-        diagonale1 = []
-        diagonale2 = []
-        for i in range (0, self.x):
-            diagonale1.append(self.arr[i][i])
-            diagonale2.append(self.arr[i][self.x - 1 - i])
-
-        out.append(diagonale1)
-        out.append(diagonale2)
+        # Diagonales
+        out.append([self.arr[0][0], self.arr[1][1], self.arr[2][2], self.arr[3][3]]) 
+        out.append([self.arr[3][0], self.arr[2][1], self.arr[1][2], self.arr[0][3]])
 
         return out
 
     def verifier_alignements(self) -> bool:
         """ Vérifie si le plateau contient un aligments (mais ne précise pas où se trouve cet alignement !) """
-        lignes_colonnes_diagonales = self.recuperer_lignes_diagonales()
-        return any(comp(lcd) for lcd in lignes_colonnes_diagonales)
+        for chemin in self.chemins:
+            if self.arr[chemin[0][1]][chemin[0][0]] is None or \
+                self.arr[chemin[1][1]][chemin[1][0]] is None or \
+                self.arr[chemin[2][1]][chemin[2][0]] is None or \
+                self.arr[chemin[3][1]][chemin[3][0]] is None:
+                continue
+
+            p1 = self.arr[chemin[0][1]][chemin[0][0]]
+            p2 = self.arr[chemin[1][1]][chemin[1][0]]
+            p3 = self.arr[chemin[2][1]][chemin[2][0]]
+            p4 = self.arr[chemin[3][1]][chemin[3][0]]
+
+            if (p1.couleur == p2.couleur == p3.couleur == p4.couleur) or \
+                (p1.forme == p2.forme == p3.forme == p4.forme) or \
+                (p1.dessus == p2.dessus == p3.dessus == p4.dessus) or \
+                (p1.taille == p2.taille == p3.taille == p4.taille):
+                return True
+
+        return False
 
     def recuperer_cases_vides(self) -> list:
         """ Renvoie l'ensemble des cases vides sous la forme d'une liste avec leur indice """
