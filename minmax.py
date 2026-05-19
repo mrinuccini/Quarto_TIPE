@@ -248,7 +248,7 @@ def evaluate1(plateau: Plateau, pioche: list, piece_a_donner: Piece):
         # On vérifie si la pièce donnée par l'adversaire mène directement à un échec
         if len(pieces_non_vides) == 3:
             if comp(pieces_non_vides + [piece_a_donner]):
-                return SCORE_VICTOIRE
+                return -SCORE_VICTOIRE
 
         caracteristiques_communes = nombre_caracteristiques_communes(pieces_non_vides)
 

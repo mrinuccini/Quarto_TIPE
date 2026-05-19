@@ -30,10 +30,12 @@ class Joueur:
 
         if self.type == "MinMax" or self.type == "Mix":
             self.max_depth = param["max_depth"]
+            """
             if os.path.isfile("transpositions.tbl"):
                 with open("transpositions.tbl", 'rb') as tbl:
                     transposition_table = pickle.load(tbl)
                     print(f"loaded transposition table of size : {len(transposition_table)}")
+            """
         if self.type == "MonteCarlo" or self.type=="Mix":
             self.c = param["c"]
             self.n_simul = param["n_simul"]
