@@ -49,17 +49,23 @@ class Joueur:
 
             match self.type:
                 case "MinMax":
-                    score = 0
-                    meilleur_coup_global = None
+                    if len(pioche) > 13:
+                        score, self.best_move = minmax_premier_coup(plateau, pioche, piece_a_jouer)
+                    else:
+                        score = 0
+                        meilleur_coup_global = None
 
-                    for profondeur in range(1, self.max_depth + 1):
-                        score, meilleur_coup_profondeur = minimax(plateau, pioche, piece_a_jouer, profondeur, evaluate1, float("-inf"), float("inf"), zb, maximise=True)
-                        
-                        if meilleur_coup_profondeur is not None:
-                            meilleur_coup_global = meilleur_coup_profondeur
-                            self.best_move = meilleur_coup_global
-                            
-                        print(f"Profondeur {profondeur} atteinte. Taille de la table : {len(transposition_table)}")
+                        try:
+                            for profondeur in range(1, 16):
+                                score, meilleur_coup_profondeur = minimax(plateau, pioche, piece_a_jouer, profondeur, evaluate1, float("-inf"), float("inf"), zb, t1, 45, maximise=True)
+                                
+                                if meilleur_coup_profondeur is not None:
+                                    meilleur_coup_global = meilleur_coup_profondeur
+                                    self.best_move = meilleur_coup_global
+                                    
+                                print(f"Profondeur {profondeur} atteinte.")
+                        except TimeOutException:
+                            print("Temps écoulé !")
                 case "MonteCarlo":
                     scores, self.best_moves = mcts(RootState(plateau, pioche, piece_a_jouer), self.c, self.n_simul)
                     self.best_move = self.best_moves[0]
