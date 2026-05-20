@@ -152,7 +152,7 @@ class Game:
             winner = self.game_loop() #On effectue une partie
             self.wins[winner] += 1
             self.parties_restantes -= 1
-            print("\n\n"+"♫"*50)
+            print("\n\n"+"♫"*100)
             i += 1
         print("\n\n"+"-"*50+"\nToutes les parties ont été jouées")
 
@@ -160,7 +160,7 @@ class Game:
         "Écrit le fichier des résultats de la simulation"
         f = open("resultats.csv", "w")
         f.write(f"Nombre de parties total, {self.parties_totales}\n")
-        f.write(f"Nombre de parties nulles, {self.parties_restantes - self.wins[0] - self.wins[1]}\n")
+        f.write(f"Nombre de parties nulles, {self.parties_totales - self.wins[0] - self.wins[1]}\n")
         f.write(f"J1 : Nombre de victoires, {self.wins[0]}\n")
         f.write(f"J1 : Temps total de réflexion, {self.list_joueurs[0].reflexion_time}\n")
         f.write(f"J2 : Nombre de victoires, {self.wins[1]}\n")
