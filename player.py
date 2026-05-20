@@ -6,11 +6,14 @@ from montecarlo import *
 from xterminator import *
 import random
 import time
+import pickle
+import os
 
 TYPES = ["Humain", "MonteCarlo", "MinMax", "RandomBot", "Mix"]
 
 class Joueur:
     def __init__(self, typ="Humain", niveau=1, param={}):
+        global transposition_table
         """ Paramètre :
                 type : chaîne de caractères, élément de TYPES
                        type de joueur
@@ -27,13 +30,17 @@ class Joueur:
 
         if self.type == "MinMax" or self.type == "Mix":
             self.max_depth = param["max_depth"]
+            if os.path.isfile("transpositions.tbl"):
+                with open("transpositions.tbl", 'rb') as tbl:
+                    transposition_table = pickle.load(tbl)
+                    print(f"loaded transposition table of size : {len(transposition_table)}")
         if self.type == "MonteCarlo" or self.type=="Mix":
             self.c = param["c"]
             self.n_simul = param["n_simul"]
         if self.type == "Mix":
             self.nmix = param['nmix']
 
-    def debut_tour(self, plateau: Plateau, pioche: list, piece_a_jouer: Piece) -> None:
+    def debut_tour(self, plateau: Plateau, pioche: list, piece_a_jouer: Piece, zb: Zobrist) -> None:
         """
             Utilisé au début du tour pour les IA afin de générer les arbres de jeux, etc...
         """
@@ -42,13 +49,27 @@ class Joueur:
 
             match self.type:
                 case "MinMax":
-                    score, self.best_move = minimax(plateau, pioche, piece_a_jouer, self.max_depth, evaluate1, float("-inf"), float("inf"), maximise=True)
-            
+                    if len(pioche) > 13:
+                        score, self.best_move = minmax_premier_coup(plateau, pioche, piece_a_jouer)
+                    else:
+                        score = 0
+                        meilleur_coup_global = None
+
+                        try:
+                            for profondeur in range(1, 16):
+                                score, meilleur_coup_profondeur = minimax(plateau, pioche, piece_a_jouer, profondeur, evaluate1, float("-inf"), float("inf"), zb, t1, 45, maximise=True)
+                                
+                                if meilleur_coup_profondeur is not None:
+                                    meilleur_coup_global = meilleur_coup_profondeur
+                                    self.best_move = meilleur_coup_global
+                                    
+                                print(f"Profondeur {profondeur} atteinte.")
+                        except TimeOutException:
+                            print("Temps écoulé !")
                 case "MonteCarlo":
                     scores, self.best_moves = mcts(RootState(plateau, pioche, piece_a_jouer), self.c, self.n_simul)
                     self.best_move = self.best_moves[0]
                     score = scores[0]
-            
                 case "Mix":
                     score, self.best_move = xterminator(RootState(plateau, pioche, piece_a_jouer), self.c, self.n_simul, self.nmix, self.max_depth)
             
