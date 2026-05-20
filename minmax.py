@@ -34,8 +34,11 @@ def minmax_premier_coup(plateau: Plateau, pioche: dict, piece_a_placer: Piece) -
     min_piece_score = 100
     min_piece_id = 0
     for piece_id, piece in list(pioche.items()):
-        if nombre_caracteristiques_communes([piece, piece_a_placer]) < min_piece_score:
+        score = nombre_caracteristiques_communes([piece, piece_a_placer])
+        if score < min_piece_score:
+            min_piece_score = score
             min_piece_id = piece_id
+
 
     return 0, Move(case_choisie, min_piece_id)
 
@@ -70,9 +73,9 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
                 place_prio = coup_prioritaire.place
                 piece_id_prio = coup_prioritaire.piece_idx
                                         
-                piece = pioche[piece_id_prio]
                 # Si le coup prioritaire est légal
                 if plateau.recuperer_piece_1D(place_prio) is None and piece_id_prio in pioche.keys():
+                    piece = pioche[piece_id_prio]
                     plateau.placer_piece_1D(place_prio, piece_a_placer)
 
                     if plateau.verifier_alignements():
@@ -114,6 +117,10 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
                         plateau.placer_piece_1D(case, None)
                         return SCORE_VICTOIRE + max_depth, Move(case, None) # le fait d'ajouter max_depth permet de s'assurer que minmax préferera un coup qui mène rapidement à la victoire plutôt qu'on coup qui mène doucement à la victoire
                     
+                    if not pioche: # Match nul
+                        plateau.placer_piece_1D(case, None)
+                        return 0, Move(case, None) # 0: score nul parfait
+
                     for piece_id, piece in list(pioche.items()):
                         if coup_prioritaire is not None and coup_prioritaire.place == case and coup_prioritaire.piece_idx == piece_id:
                             continue
@@ -151,10 +158,10 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
             if coup_prioritaire is not None and coup_prioritaire.place is not None:
                 place_prio = coup_prioritaire.place
                 piece_id_prio = coup_prioritaire.piece_idx                  
-                piece = pioche[piece_id_prio]
                 
                 # Si le coup prioritaire est légal
                 if plateau.recuperer_piece_1D(place_prio) is None and piece_id_prio in pioche.keys():
+                    piece = pioche[piece_id_prio]
                     plateau.placer_piece_1D(place_prio, piece_a_placer)
 
                     if plateau.verifier_alignements():
@@ -193,6 +200,12 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
                     if plateau.verifier_alignements():
                         plateau.placer_piece_1D(case, None)
                         return -SCORE_VICTOIRE - max_depth, Move(case, None) # le fait d'enlever max_depth permet de s'assurer que minmax préferera un coup qui mène rapidement à la victoire plutôt qu'on coup qui mène doucement à la victoire
+
+                    if not pioche: # Match nul
+                        plateau.placer_piece_1D(case, None)
+                        return 0, Move(case, None) # 0: score nul parfait
+
+
 
                     for piece_id, piece in list(pioche.items()):
                         if coup_prioritaire is not None and coup_prioritaire.place == case and coup_prioritaire.piece_idx == piece_id:
