@@ -18,6 +18,7 @@ class Game:
         self.zb = Zobrist()
         self.parties_totales = n #Nombre de parties totales
         self.x, self.y = x, y #Nombre de colonnes et de lignes du plateau
+        self.init_player()
         self.game_launch() #On lance le jeu
         self.write() #On écrit le fichier des résultats
 
@@ -34,8 +35,6 @@ class Game:
         self.plateau = Plateau(self.get_nb_of_columns(), self.get_nb_of_lines()) #Plateau
         self.generer_pioche() #Pioche
 
-        self.init_player()
-
     def init_player(self):
         "Paramétrages des joueurs"
         self.list_joueurs = []
@@ -48,7 +47,7 @@ class Game:
             if type in ("MonteCarlo", "Mix"):
                 c = input(f"Quel paramètre d'exploration c ? (défaut : {param['c']}) ")
                 if c != "":
-                    param["c"] = int(c)
+                    param["c"] = float(c)
                 n_simul = input(f"Combien d'échantillons ? (défaut : {param['n_simul']}) ")
                 if n_simul != "":
                     param["n_simul"] = int(n_simul)
@@ -146,13 +145,16 @@ class Game:
         self.parties_restantes = self.parties_totales
         self.wins = [0,0]
 
-        print(f"PARTIE {i}\n" + "-"*9 + "\n")
+
 
         while self.parties_restantes > 0:
+            print(f"PARTIE {i}/{self.parties_totales}\n" + "-"*9 + "\n")
             winner = self.game_loop() #On effectue une partie
             self.wins[winner] += 1
             self.parties_restantes -= 1
-        print("Toutes les parties ont été jouées")
+            print("\n\n"+"♫"*50)
+            i += 1
+        print("\n\n"+"-"*50+"\nToutes les parties ont été jouées")
 
     def write(self):
         "Écrit le fichier des résultats de la simulation"

@@ -117,7 +117,17 @@ def mcts(root_state:RootState, c, n_simul):
 
         backpropagate(node, res)
 
-    best_child = max(root.enfants, key=lambda n: n.win / n.visited if n.visited > 0 else float('-inf'))
-    best_move = [best_child.move]
-    best_score = [best_child.win / best_child.visited if best_child.visited > 0 else 0]
+    if root.enfants: #Si on peut effectuer une action
+        best_child = max(root.enfants, key=lambda n: n.win / n.visited if n.visited > 0 else float('-inf'))
+        best_move = [best_child.move]
+        best_score = [best_child.win / best_child.visited if best_child.visited > 0 else 0]
+    else:
+        cases = root_state.plateau.recuperer_cases_vides()
+        pieces = list(root_state.pioche.keys())
+        if cases and pieces: #S'il reste des cases libres et des pièces à donner
+            best_move = [Move(choice(cases), choice(pieces))]
+            best_score = [0]
+        else:
+            best_move = [Move(None, None)]
+            best_score = [0]
     return best_score, best_move

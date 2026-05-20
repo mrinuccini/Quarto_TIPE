@@ -136,7 +136,11 @@ class Node_MCTS(Node):
             e.init_tree_for_mcts()
                 
     def get_ucb(self, c):
-        """ Renvoie le UCT associé au noeud, au paramètre d'exploration c """
+        """ Renvoie le UCT associé au noeud, au paramètre d'exploration c :
+        c = 1 : autant d'exploration que d'exploitation
+        c > 1 : plus d'exploration
+        c < 1 : plus d'exploitation
+        """
         if self.visited == 0:
             return float('inf')
         return self.win / self.visited + c*sqrt(log(self.parent.visited) / self.visited)
