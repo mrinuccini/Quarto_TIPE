@@ -4,11 +4,11 @@ from Tree import *
 from random import choice, shuffle
 
 def selection(node:Node_MCTS, c, state):
-    "Phase de Sélection"
-    while node.enfants != [] and (node.untried_move is not None and node.untried_move == []):
-        node = max(node.enfants, key=lambda v: v.get_ucb(c)) #On cherche la feuille avec la valeur ucb maximale
+    "Phase de sélection"
+    while node.get_enfants_directs() != [] and (node.get_untried_moves() is not None and node.get_untried_moves() == []):
+        node = max(node.get_enfants_directs(), key=lambda v: v.get_ucb(c))
 
-        move:Move = node.move
+        move:Move = node.get_move()
         piece_id, case = move.get_piece_idx(), move.get_place()
 
         state.plateau.placer_piece_1D(case, state.piece_a_jouer)
@@ -17,17 +17,17 @@ def selection(node:Node_MCTS, c, state):
 
 def expansion(node:Node_MCTS, state: RootState):
     "Phase d'Expansion"
-    if node.untried_move is None:
+    if node.get_untried_moves() is None:
         cases = state.plateau.recuperer_cases_vides()
         pieces = list(state.pioche.keys())
 
-        node.untried_move = [Move(c, p) for c in cases for p in pieces]
-        shuffle(node.untried_move)
+        node.gen_untried_moves(cases, pieces)
+        shuffle(node.get_untried_moves())
 
-    if not node.untried_move:
+    if not node.get_untried_moves():
         return node
 
-    coup: Move = node.untried_move.pop()
+    coup: Move = node.get_untried_moves().pop()
     piece_id, case = coup.get_piece_idx(), coup.get_place()
 
     piece_a_jouer = state.piece_a_jouer
@@ -37,7 +37,7 @@ def expansion(node:Node_MCTS, state: RootState):
     state.piece_a_jouer = piece_suivante
 
     nouvel_enfant = Node_MCTS(coup, node)
-    node.enfants.append(nouvel_enfant)
+    node.insert(nouvel_enfant)
 
     return nouvel_enfant
 
@@ -76,9 +76,9 @@ def simulation(state:RootState):
                 if not safe:
                     break
             if safe:
-                safe_pieces_list.append(piece)
+                safe_pieces_list += [piece]
             else:
-                dangerous_pieces_list.append(piece)
+                dangerous_pieces_list += [piece]
 
         piece_id_choisie = None
         if safe_pieces_list:
@@ -94,13 +94,13 @@ def simulation(state:RootState):
 
     return 1 if tours_joues % 2 == 0 else 0
 
-def backpropagate(node, result):
+def backpropagate(node:Node_MCTS, result):
     "Backpropagation"
     while node!=None: #On remonte dans l'arbre et actualise les valeurs des noeuds
-        node.visited += 1
-        node.win += result
+        node.increase_visit_number()
+        node.increase_win_number(result)
         result = 1 - result
-        node = node.parent
+        node = node.get_parent()
 
 def mcts(root_state:RootState, c, n_simul):
     "Algorithme de Monte Carlo"
@@ -117,7 +117,17 @@ def mcts(root_state:RootState, c, n_simul):
 
         backpropagate(node, res)
 
-    best_move = [max(root.enfants, key=lambda n: n.visited).move]
-
-    best_score = [max(root.enfants, key=lambda n: n.visited).visited]
+    if root.enfants: #Si on peut effectuer une action
+        best_child = max(root.enfants, key=lambda n: n.win / n.visited if n.visited > 0 else float('-inf'))
+        best_move = [best_child.move]
+        best_score = [best_child.win / best_child.visited if best_child.visited > 0 else 0]
+    else:
+        cases = root_state.plateau.recuperer_cases_vides()
+        pieces = list(root_state.pioche.keys())
+        if cases and pieces: #S'il reste des cases libres et des pièces à donner
+            best_move = [Move(choice(cases), choice(pieces))]
+            best_score = [0]
+        else:
+            best_move = [Move(None, None)]
+            best_score = [0]
     return best_score, best_move

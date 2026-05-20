@@ -23,7 +23,7 @@ def minmax_premier_coup(plateau: Plateau, pioche: dict, piece_a_placer: Piece) -
     """
     # On joue en premier, on renvoie juste une pièce au hasard
     if piece_a_placer is None:
-        return Move(None, randrange(0, 15))
+        return 0, Move(None, randrange(0, 15))
     
     # Sinon, on place la pièce donnée à un endroit stratégique (de préférence un coin libre)
     case_choisie = 0
@@ -92,8 +92,7 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
 
                         if f_score > max_eval:
                             max_eval = f_score
-                            meilleur_coup = Move(place_prio, piece_id_prio) #+
-                            #- meilleur_coup = (piece_id, case)
+                            meilleur_coup = Move(place_prio, piece_id_prio)
 
                         if max_eval >= beta:
                             plateau.placer_piece_1D(place_prio, None) # Backtracking on annule le coup qu'on avait joué
@@ -135,8 +134,7 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
 
                             if f_score > max_eval:
                                 max_eval = f_score
-                                meilleur_coup = Move(case, piece_id) #+
-                                #- meilleur_coup = (piece_id, case)
+                                meilleur_coup = Move(case, piece_id)
 
                             if max_eval >= beta:
                                 plateau.placer_piece_1D(case, None) # Backtracking on annule le coup qu'on avait joué

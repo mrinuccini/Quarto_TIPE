@@ -2,4 +2,4 @@
 from game import *
 
 #Lancement du jeu
-game = Game()
+game = Game(100)
