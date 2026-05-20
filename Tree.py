@@ -77,17 +77,28 @@ class Node_MCTS(Node):
         """ Paramètres :
                 - val : float
                         valeur du nœud
-                - enfants : liste des enfants
-                - parent : parent du noued
+                - move : instanciation de la classe Move, mouvement associé au noeud (un mouvement = une case où placer
+                                                          et une pièce à donner)
+                - parent : Nod_MCTS, parent du noued
         """
-        self.parent = parent
+        self.parent = parent #Noeud parent, permet de remonter dans l'arbre
+        self.enfants = [] #Noeud enfant
         self.win = 0 #Nombre de victoires associé au noeud
         self.visited = 0 #Nombre de visites du noeud
         self.move = move #mouvement associé au noeud
         self.untried_move = None
-        self.enfants = []
         
+    def get_win_number(self):
+        "Renvoie le nombre de victoires associé au noeud"
+        return self.win
+        
+    def get_visit_number(self):
+        "Renvoie le nombre de visites associé au noeud"
+        return self.win
+
+
     def insert(self, node):
+        "Insère node"
         super().insert(node)
         node.parent = self
     

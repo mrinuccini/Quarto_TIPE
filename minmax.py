@@ -27,7 +27,8 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
 
                 if plateau.verifier_alignements():
                     plateau.placer_piece_1D(case, None)
-                    return SCORE_VICTOIRE + max_depth, (None, case) # le fait d'ajouter max_depth permet de s'assurer que minmax préferera un coup qui mène rapidement à la victoire plutôt qu'on coup qui mène doucement à la victoire
+                    meilleur_coup = Move(case, None)
+                    return SCORE_VICTOIRE + max_depth, meilleur_coup # le fait d'ajouter max_depth permet de s'assurer que minmax préferera un coup qui mène rapidement à la victoire plutôt qu'on coup qui mène doucement à la victoire
                 
                 for piece_id, piece in list(pioche.items()):
                     del pioche[piece_id]
@@ -55,7 +56,8 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
 
                 if plateau.verifier_alignements():
                     plateau.placer_piece_1D(case, None)
-                    return -SCORE_VICTOIRE - max_depth, (None, case) # le fait d'enlever max_depth permet de s'assurer que minmax préferera un coup qui mène rapidement à la victoire plutôt qu'on coup qui mène doucement à la victoire
+                    meilleur_coup = Move(case, None)
+                    return -SCORE_VICTOIRE - max_depth, meilleur_coup # le fait d'enlever max_depth permet de s'assurer que minmax préferera un coup qui mène rapidement à la victoire plutôt qu'on coup qui mène doucement à la victoire
                 
                 for piece_id, piece in list(pioche.items()):
                     del pioche[piece_id]
