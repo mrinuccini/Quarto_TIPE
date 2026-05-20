@@ -39,7 +39,8 @@ class Game:
         "Paramétrages des joueurs"
         self.list_joueurs = []
         for i in range(2):
-            param = {"c":1.0, "n_simul": 1000, "max_depth":4, "nmix":10}
+            param = {"c":1.41421, "n_simul": 1000, "max_depth":4, "nmix":10}
+
             type = input(f"Joueur {i+1}, quel type de joueur (Humain, RandomBot, MonteCarlo, MinMax, Mix) : ")
             if type == "":
                 type = "Humain"
