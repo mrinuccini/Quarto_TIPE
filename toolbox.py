@@ -121,3 +121,22 @@ def test():
     L1 = [5,6,7,8,9]
     L2 = [7,8,4,5,6]
     print(max_k_v(L1, L2))
+
+
+def preparer_liste_pour_sauvegarde(l):
+    stri = ""
+    for e in l:
+        stri += str(e)
+        stri += "|"
+    return stri
+
+def obtenir_liste(stri, typ):
+    liste = []
+    elem = ""
+    for letter in stri:
+        if letter == "|":
+            liste += [typ(elem)]
+            elem = ""
+        else:
+            elem += letter
+    return liste

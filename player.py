@@ -39,7 +39,9 @@ class Joueur:
             self.n_simul = param["n_simul"]
         if self.type == "Mix":
             self.nmix = param['nmix']
-
+    def debut_game(self):
+        self.reflexion_time = 0
+        
     def debut_tour(self, plateau: Plateau, pioche: list, piece_a_jouer: Piece, zb: Zobrist) -> None:
         """
             Utilisé au début du tour pour les IA afin de générer les arbres de jeux, etc...

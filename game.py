@@ -145,14 +145,21 @@ class Game:
         i = 1
         self.parties_restantes = self.parties_totales
         self.wins = [0,0]
-
-
-
+        self.reflexion_times = [[], []] #Temps de réflexion par partie
+        last_reflexion_time = [0,0]
         while self.parties_restantes > 0:
+            
             print(f"PARTIE {i}/{self.parties_totales}\n" + "-"*9 + "\n")
+
             winner = self.game_loop() #On effectue une partie
+
             self.wins[winner] += 1
+            for i in range(2):
+                last_reflexion_time[i] = self.list_joueurs[i].reflexion_time - last_reflexion_time[i]
+                self.reflexion_times[i] += [last_reflexion_time[i]]
+            
             self.parties_restantes -= 1
+
             print("\n\n"+"♫"*100)
             i += 1
         print("\n\n"+"-"*50+"\nToutes les parties ont été jouées")
@@ -162,15 +169,19 @@ class Game:
         f = open("resultats.csv", "w")
         f.write(f"Nombre de parties total, {self.parties_totales}\n")
         f.write(f"Nombre de parties nulles, {self.parties_totales - self.wins[0] - self.wins[1]}\n")
-        f.write(f"J1 : Nombre de victoires, {self.wins[0]}\n")
-        f.write(f"J1 : Temps total de réflexion, {self.list_joueurs[0].reflexion_time}\n")
-        f.write(f"J2 : Nombre de victoires, {self.wins[1]}\n")
-        f.write(f"J2 : Temps total de réflexion, {self.list_joueurs[1].reflexion_time}\n")
+
+        for i in range(2):
+            joueur = self.list_joueurs[i]
+            f.write(f"J{i+1} : Nombre de victoires, {self.wins[i]}\n")
+            f.write(f"J{i+1} : Temps total de reflexion, {joueur.reflexion_time}\n")
+            f.write(f"J{i+1} : Temps moyen de reflexion par partie, {joueur.reflexion_time/self.parties_totales}\n")
+            reflexion_times = preparer_liste_pour_sauvegarde(self.reflexion_times[i])
+            f.write(f"J{i+1} : Temps de reflexion par partie, {reflexion_times}\n")
 
     def game_loop(self):
         "Boucle de jeu"
         self.init_var() #Initialisation des variables de jeu
-
+        self.init_player()
         self.continuer = 100 #Condition d'arrêt
         self.joueur_idx = 0 #Joueur en train de jouer
         self.egalite = False
