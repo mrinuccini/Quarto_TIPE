@@ -155,9 +155,9 @@ class Game:
             winner = self.game_loop() #On effectue une partie
 
             self.wins[winner] += 1
-            for i in range(2):
-                self.reflexion_times[i] += [self.list_joueurs[i].reflexion_time]
-                self.sum_reflexion_times[i] += self.list_joueurs[i].reflexion_time
+            for i2 in range(2):
+                self.reflexion_times[i2] += [self.list_joueurs[i2].reflexion_time]
+                self.sum_reflexion_times[i2] += self.list_joueurs[i2].reflexion_time
             
             self.parties_restantes -= 1
 
@@ -175,7 +175,7 @@ class Game:
             joueur = self.list_joueurs[i]
             f.write(f"J{i+1} : Nombre de victoires, {self.wins[i]}\n")
             f.write(f"J{i+1} : Temps total de reflexion, {self.sum_reflexion_times[i]}\n")
-            f.write(f"J{i+1} : Temps moyen de reflexion par partie, {joueur.reflexion_time/self.parties_totales}\n")
+            f.write(f"J{i+1} : Temps moyen de reflexion par partie, {self.sum_reflexion_times[i]/self.parties_totales}\n")
             reflexion_times = preparer_liste_pour_sauvegarde(self.reflexion_times[i])
             f.write(f"J{i+1} : Temps de reflexion par partie, {reflexion_times}\n")
 
