@@ -146,7 +146,8 @@ class Game:
         self.parties_restantes = self.parties_totales
         self.wins = [0,0]
         self.reflexion_times = [[], []] #Temps de réflexion par partie
-        last_reflexion_time = [0,0]
+        self.sum_reflexion_times = [0,0]
+
         while self.parties_restantes > 0:
             
             print(f"PARTIE {i}/{self.parties_totales}\n" + "-"*9 + "\n")
@@ -155,8 +156,8 @@ class Game:
 
             self.wins[winner] += 1
             for i in range(2):
-                last_reflexion_time[i] = self.list_joueurs[i].reflexion_time - last_reflexion_time[i]
-                self.reflexion_times[i] += [last_reflexion_time[i]]
+                self.reflexion_times[i] += [self.list_joueurs[i].reflexion_time]
+                self.sum_reflexion_times[i] += self.list_joueurs[i].reflexion_time
             
             self.parties_restantes -= 1
 
@@ -173,7 +174,7 @@ class Game:
         for i in range(2):
             joueur = self.list_joueurs[i]
             f.write(f"J{i+1} : Nombre de victoires, {self.wins[i]}\n")
-            f.write(f"J{i+1} : Temps total de reflexion, {joueur.reflexion_time}\n")
+            f.write(f"J{i+1} : Temps total de reflexion, {self.sum_reflexion_times[i]}\n")
             f.write(f"J{i+1} : Temps moyen de reflexion par partie, {joueur.reflexion_time/self.parties_totales}\n")
             reflexion_times = preparer_liste_pour_sauvegarde(self.reflexion_times[i])
             f.write(f"J{i+1} : Temps de reflexion par partie, {reflexion_times}\n")
@@ -181,7 +182,7 @@ class Game:
     def game_loop(self):
         "Boucle de jeu"
         self.init_var() #Initialisation des variables de jeu
-        self.init_player()
+        self.debut_tour()
         self.continuer = 100 #Condition d'arrêt
         self.joueur_idx = 0 #Joueur en train de jouer
         self.egalite = False
