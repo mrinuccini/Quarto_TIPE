@@ -24,5 +24,14 @@ def afficher_reflexion_times(res):
     plt.ylabel("Temps de réflexion total (en s)")
     plt.show()
 
+def afficher_rt_par_coup(res):
+    m = obtenir_mat(res["J1 : Temps de reflexion par coup"], float)
+    count = 0
+    for e in m[0]:
+        count += 1
+    x = range(count)
+    plt.plot(x, m[0])
+    plt.show()
+
 res = get_res()
-afficher_reflexion_times(res)
+afficher_rt_par_coup(res)

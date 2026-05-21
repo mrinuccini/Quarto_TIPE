@@ -4,6 +4,7 @@
 from minmax import *
 from montecarlo import *
 from xterminator import *
+from stats_class import *
 import random
 import time
 import pickle
@@ -25,6 +26,7 @@ class Joueur:
         self.niveau = niveau
 
         self.reflexion_time = 0 #Temps de réflexion total sur la partie
+        self.stat = stat()
 
         self.best_move :Move= None #Meilleur mouvement
 
@@ -39,9 +41,12 @@ class Joueur:
             self.n_simul = param["n_simul"]
         if self.type == "Mix":
             self.nmix = param['nmix']
+
+
     def debut_game(self):
         self.reflexion_time = 0
-        
+        self.stat.deb_partie()
+
     def debut_tour(self, plateau: Plateau, pioche: list, piece_a_jouer: Piece, zb: Zobrist) -> None:
         """
             Utilisé au début du tour pour les IA afin de générer les arbres de jeux, etc...
@@ -78,6 +83,7 @@ class Joueur:
             t2 = time.time()
             delta_t = t2 - t1
             self.reflexion_time += delta_t
+            self.stat.act(delta_t)
 
             print(f"Score du coup trouvé : {score} (coup : {self.best_move}). Temps de calcul : {(delta_t):.3f}s")
 
@@ -96,6 +102,7 @@ class Joueur:
             t2 = time.time()
             delta_t = t2 - t1
             self.reflexion_time += delta_t
+            self.stat.act(delta_t)
             return i
         
         elif self.type == "RandomBot":
@@ -123,6 +130,7 @@ class Joueur:
                     cond = False
             t2 = time.time()
             delta_t = t2 - t1
+            self.stat.act(delta_t)
             self.reflexion_time += delta_t
             return i
         

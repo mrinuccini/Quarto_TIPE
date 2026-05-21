@@ -130,6 +130,15 @@ def preparer_liste_pour_sauvegarde(l):
         stri += "|"
     return stri
 
+def preparer_matrice_pour_sauvegarde(m):
+    stri = ""
+    for l in m:
+        for e in l:
+            stri += str(e)
+            stri += "|"
+        stri +="#"
+    return stri
+
 def obtenir_liste(stri, typ):
     liste = []
     elem = ""
@@ -140,3 +149,20 @@ def obtenir_liste(stri, typ):
         else:
             elem += letter
     return liste
+
+def obtenir_mat(stri, typ):
+    m = []
+    i = 0
+    letter = stri[0]
+    liste = []
+    elem = ""
+    for letter in stri:
+        if letter == "#":
+            m += liste
+            liste = []
+        if letter == "|":
+            liste += [typ(elem)]
+            elem = ""
+        else:
+            elem += letter
+         
