@@ -14,7 +14,30 @@ class TimeOutException(Exception):
 
 
 SCORE_VICTOIRE = 100000
+
 transposition_table = {}
+
+MAX_HISTORY = 16384
+history = [0] * 256
+
+def clamp(n, min, max):
+    if n < min:
+        return min
+    elif n > max:
+        return max
+    else:
+        return n
+
+def update_history(case_id: int, piece_a_donner_id: int, bonus):
+    """
+        cf. https://webdocs.cs.ualberta.ca/~jonathan/publications/ai_publications/pami.pdf
+    """
+    id_coup = (case_id * 16) + piece_a_donner_id
+
+    clamped_bonus = clamp(bonus, -MAX_HISTORY, MAX_HISTORY)
+    history[id_coup] += clamped_bonus - history[id_coup] * abs(clamped_bonus) // MAX_HISTORY # History gravity formula
+
+
 
 def minmax_premier_coup(plateau: Plateau, pioche: dict, piece_a_placer: Piece) -> tuple:
     """
@@ -42,6 +65,14 @@ def minmax_premier_coup(plateau: Plateau, pioche: dict, piece_a_placer: Piece) -
 
     return 0, Move(case_choisie, min_piece_id)
 
+def sort_move(move: tuple, plateau: Plateau, pioche: dict, coup_prioritaire: Move) -> int:
+    # On joue le coup prioritaire en premier
+    if coup_prioritaire is not None and move[0] == coup_prioritaire.place and move[1] == coup_prioritaire.piece_idx:
+        return -99999999
+    
+    # Puis les coups dans l'history heuristic
+    coup_id = move[0] * 16 + move[1]
+    return -history[coup_id]
 
 def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: int, f_eval, alpha: int, beta: int, zb: Zobrist, t_start: float, t_max: float, maximise: bool=True) -> tuple:
     """
@@ -63,88 +94,49 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
             data = transposition_table[zb.get_canonical_hash()]
             if data["profondeur"] >= max_depth:
                 return data["score"], data["move"]
-            
             coup_prioritaire = data["move"] # Move ordering de qualité
+
+        moves = generer_coups_legaux(plateau, pioche)
+        moves.sort(key= lambda move: sort_move(move, plateau, pioche, coup_prioritaire))
 
         if maximise:
             max_eval = -200000
+            for move in moves:
+                case = move[0]
+                piece_id = move[1]
+                piece = move[2]
 
-            if coup_prioritaire is not None and coup_prioritaire.place is not None:
-                place_prio = coup_prioritaire.place
-                piece_id_prio = coup_prioritaire.piece_idx
-                                        
-                # Si le coup prioritaire est légal
-                if plateau.recuperer_piece_1D(place_prio) is None and piece_id_prio in pioche.keys():
-                    piece = pioche[piece_id_prio]
-                    plateau.placer_piece_1D(place_prio, piece_a_placer)
+                plateau.placer_piece_1D(case, piece)
 
-                    if plateau.verifier_alignements():
-                        plateau.placer_piece_1D(place_prio, None)
-                        return SCORE_VICTOIRE + max_depth, Move(place_prio, None) # le fait d'ajouter max_depth permet de s'assurer que minmax préferera un coup qui mène rapidement à la victoire plutôt qu'on coup qui mène doucement à la victoire
+                if plateau.verifier_alignements():
+                    plateau.placer_piece_1D(case, None)
+                    return SCORE_VICTOIRE + max_depth, Move(case, None) # le fait d'ajouter max_depth permet de s'assurer que minmax préferera un coup qui mène rapidement à la victoire plutôt qu'on coup qui mène doucement à la victoire
+                    
+                if not pioche: # Match nul
+                    plateau.placer_piece_1D(case, None)
+                    return 0, Move(case, None) # 0: score nul parfait
 
-                    del pioche[piece_id_prio]
-                        
-                    hash_sauvegarde = list(zb.hash_actuels)
-                    piece_en_main_sauvegarde = zb.piece_en_main
-                    zb.jouer_coup(place_prio, piece_id_prio)
-                    try:
-                        f_score, _ = minimax(plateau, pioche, piece, (max_depth - 1), f_eval, max(alpha, max_eval), beta, zb, t_start, t_max, maximise=False)
-
-                        if f_score > max_eval:
-                            max_eval = f_score
-                            meilleur_coup = Move(place_prio, piece_id_prio)
-
-                        if max_eval >= beta:
-                            plateau.placer_piece_1D(place_prio, None) # Backtracking on annule le coup qu'on avait joué
-                            return max_eval, meilleur_coup
-
-                    finally:
-                        plateau.placer_piece_1D(place_prio, None) # Backtracking on annule le coup qu'on avait joué
-
-                        pioche[piece_id_prio] = piece # backtracking, on annule la pièce qu'on avait choisit
-                        
-                        zb.hash_actuels = hash_sauvegarde
-                        zb.piece_en_main = piece_en_main_sauvegarde
-
-
-            for case in plateau.recuperer_cases_vides():
-
-                plateau.placer_piece_1D(case, piece_a_placer)
+                del pioche[piece_id]
+                hash_sauvegarde = list(zb.hash_actuels)
+                piece_en_main_sauvegarde = zb.piece_en_main
+                zb.jouer_coup(case, piece_id)
 
                 try:
-                    if plateau.verifier_alignements():
-                        plateau.placer_piece_1D(case, None)
-                        return SCORE_VICTOIRE + max_depth, Move(case, None) # le fait d'ajouter max_depth permet de s'assurer que minmax préferera un coup qui mène rapidement à la victoire plutôt qu'on coup qui mène doucement à la victoire
-                    
-                    if not pioche: # Match nul
-                        plateau.placer_piece_1D(case, None)
-                        return 0, Move(case, None) # 0: score nul parfait
+                    f_score, _ = minimax(plateau, pioche, piece, (max_depth - 1), f_eval, max(alpha, max_eval), beta, zb, t_start, t_max, maximise=False)
 
-                    for piece_id, piece in list(pioche.items()):
-                        if coup_prioritaire is not None and coup_prioritaire.place == case and coup_prioritaire.piece_idx == piece_id:
-                            continue
+                    if f_score > max_eval:
+                        max_eval = f_score
+                        meilleur_coup = Move(case, piece_id)
 
-                        del pioche[piece_id]
-                        hash_sauvegarde = list(zb.hash_actuels)
-                        piece_en_main_sauvegarde = zb.piece_en_main
-                        zb.jouer_coup(case, piece_id)
-
-                        try:
-                            f_score, _ = minimax(plateau, pioche, piece, (max_depth - 1), f_eval, max(alpha, max_eval), beta, zb, t_start, t_max, maximise=False)
-
-                            if f_score > max_eval:
-                                max_eval = f_score
-                                meilleur_coup = Move(case, piece_id)
-
-                            if max_eval >= beta:
-                                plateau.placer_piece_1D(case, None) # Backtracking on annule le coup qu'on avait joué
-                                return max_eval, meilleur_coup
-                        finally:
-                            pioche[piece_id] = piece # backtracking, on annule la pièce qu'on avait choisit
-                            
-                            zb.hash_actuels = hash_sauvegarde
-                            zb.piece_en_main = piece_en_main_sauvegarde
+                        if max_eval >= beta:
+                            update_history(case, piece_id, 100)
+                            plateau.placer_piece_1D(case, None) # Backtracking on annule le coup qu'on avait joué
+                            return max_eval, meilleur_coup
                 finally:
+                    pioche[piece_id] = piece # backtracking, on annule la pièce qu'on avait choisit
+                            
+                    zb.hash_actuels = hash_sauvegarde
+                    zb.piece_en_main = piece_en_main_sauvegarde
                     plateau.placer_piece_1D(case, None) # Backtracking on annule le coup qu'on avait joué
 
             transposition_table[zb.get_canonical_hash()] = {"profondeur": max_depth, "score": max_eval, "move": meilleur_coup}
@@ -153,89 +145,55 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
             min_eval = 200000
 
 
-            if coup_prioritaire is not None and coup_prioritaire.place is not None:
-                place_prio = coup_prioritaire.place
-                piece_id_prio = coup_prioritaire.piece_idx                  
-                
-                # Si le coup prioritaire est légal
-                if plateau.recuperer_piece_1D(place_prio) is None and piece_id_prio in pioche.keys():
-                    piece = pioche[piece_id_prio]
-                    plateau.placer_piece_1D(place_prio, piece_a_placer)
+            for move in moves:
+                case = move[0]
+                piece_id = move[1]
+                piece = move[2]
 
-                    if plateau.verifier_alignements():
-                        plateau.placer_piece_1D(place_prio, None)    
-                        return -SCORE_VICTOIRE - max_depth, Move(place_prio, None) # le fait d'ajouter max_depth permet de s'assurer que minmax préferera un coup qui mène rapidement à la victoire plutôt qu'on coup qui mène doucement à la victoire
+                plateau.placer_piece_1D(case, piece)
+
+                if plateau.verifier_alignements():
+                    plateau.placer_piece_1D(case, None)
+                    return -SCORE_VICTOIRE - max_depth, Move(case, None) # le fait d'ajouter max_depth permet de s'assurer que minmax préferera un coup qui mène rapidement à la victoire plutôt qu'on coup qui mène doucement à la victoire
                     
-                    del pioche[piece_id_prio]
-                        
-                    hash_sauvegarde = list(zb.hash_actuels)
-                    piece_en_main_sauvegarde = zb.piece_en_main
-                    zb.jouer_coup(place_prio, piece_id_prio)
+                if not pioche: # Match nul
+                    plateau.placer_piece_1D(case, None)
+                    return 0, Move(case, None) # 0: score nul parfait
 
-                    try:
-                        f_score, _ = minimax(plateau, pioche, piece, (max_depth - 1), f_eval, max(alpha, min_eval), beta, zb, t_start, t_max, maximise=False)
-
-                        if f_score < min_eval:
-                            min_eval = f_score
-                            meilleur_coup = Move(place_prio, piece_id_prio) #+
-                            #- meilleur_coup = (piece_id, case)
-
-                        if min_eval <= alpha:
-                            plateau.placer_piece_1D(place_prio, None) # Backtracking on annule le coup qu'on avait joué
-                            return min_eval, meilleur_coup
-                        
-                    finally:
-                        pioche[piece_id_prio] = piece # backtracking, on annule la pièce qu'on avait choisit
-                        
-                        zb.hash_actuels = hash_sauvegarde
-                        zb.piece_en_main = piece_en_main_sauvegarde
-                        plateau.placer_piece_1D(place_prio, None) # Backtracking on annule le coup qu'on avait joué
-
-            for case in plateau.recuperer_cases_vides():
-                plateau.placer_piece_1D(case, piece_a_placer)
+                del pioche[piece_id]
+                hash_sauvegarde = list(zb.hash_actuels)
+                piece_en_main_sauvegarde = zb.piece_en_main
+                zb.jouer_coup(case, piece_id)
 
                 try:
-                    if plateau.verifier_alignements():
-                        plateau.placer_piece_1D(case, None)
-                        return -SCORE_VICTOIRE - max_depth, Move(case, None) # le fait d'enlever max_depth permet de s'assurer que minmax préferera un coup qui mène rapidement à la victoire plutôt qu'on coup qui mène doucement à la victoire
+                    f_score, _ = minimax(plateau, pioche, piece, (max_depth - 1), f_eval, alpha, min(beta, min_eval), zb, t_start, t_max, maximise=True)
 
-                    if not pioche: # Match nul
-                        plateau.placer_piece_1D(case, None)
-                        return 0, Move(case, None) # 0: score nul parfait
+                    if f_score < min_eval:
+                        min_eval = f_score
+                        meilleur_coup = Move(case, piece_id)
 
-
-
-                    for piece_id, piece in list(pioche.items()):
-                        if coup_prioritaire is not None and coup_prioritaire.place == case and coup_prioritaire.piece_idx == piece_id:
-                            continue
-
-                        del pioche[piece_id]
-
-                        hash_sauvegarde = list(zb.hash_actuels)
-                        piece_en_main_sauvegarde = zb.piece_en_main
-                        zb.jouer_coup(case, piece_id)
-
-                        try:
-                            f_score, _ = minimax(plateau, pioche, piece, (max_depth - 1), f_eval, alpha, min(beta, min_eval), zb, t_start, t_max, maximise=True)
-
-                            if f_score < min_eval:
-                                min_eval = f_score
-                                meilleur_coup = Move(case, piece_id) #+
-                                #- meilleur_coup = (piece_id, case)
-
-                            if min_eval <= alpha:
-                                plateau.placer_piece_1D(case, None) # Backtracking on annule le coup qu'on avait joué
-                                return min_eval, meilleur_coup
-                        finally:
-                            pioche[piece_id] = piece # backtracking, on annule la pièce qu'on avait choisit
-                            zb.hash_actuels = hash_sauvegarde
-                            zb.piece_en_main = piece_en_main_sauvegarde
-
+                        if min_eval <= alpha:
+                            update_history(case, piece_id, 100)
+                            plateau.placer_piece_1D(case, None) # Backtracking on annule le coup qu'on avait joué
+                            return min_eval, meilleur_coup
                 finally:
+                    pioche[piece_id] = piece # backtracking, on annule la pièce qu'on avait choisit
+                            
+                    zb.hash_actuels = hash_sauvegarde
+                    zb.piece_en_main = piece_en_main_sauvegarde
                     plateau.placer_piece_1D(case, None) # Backtracking on annule le coup qu'on avait joué
 
             transposition_table[zb.get_canonical_hash()] = {"profondeur": max_depth, "score": min_eval, "move": meilleur_coup}
             return min_eval, meilleur_coup
+
+def generer_coups_legaux(plateau: Plateau, pioche: dict):
+    out = []
+
+    for case in plateau.recuperer_cases_vides():
+        for piece_id, piece in list(pioche.items()):
+            out.append((case, piece_id, piece))
+
+    return out
 
 def evaluate1(plateau: Plateau, pioche: list, piece_a_donner: Piece):
     """
