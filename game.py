@@ -182,7 +182,8 @@ class Game:
     def game_loop(self):
         "Boucle de jeu"
         self.init_var() #Initialisation des variables de jeu
-        self.debut_tour()
+        for i in range(2):
+            self.list_joueurs[i].debut_game()
         self.continuer = 100 #Condition d'arrêt
         self.joueur_idx = 0 #Joueur en train de jouer
         self.egalite = False
