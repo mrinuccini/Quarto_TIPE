@@ -1,3 +1,5 @@
+"Statistiques en fin de jeu"
+
 import matplotlib.pyplot as plt
 import csv
 from toolbox import *
@@ -24,12 +26,18 @@ def afficher_reflexion_times(res):
     plt.ylabel("Temps de réflexion total (en s)")
     plt.show()
 
+def obtenir_rt_au_tour(m, i):
+    "Renvoie le temps de réflexion moyen au tour i de la matrice m"
+    m[k][i]
+
 def afficher_rt_par_coup(res):
     m = obtenir_mat(res["J1 : Temps de reflexion par coup"], float)
+
     count = 0
     for e in m[0]:
         count += 1
     x = range(count)
+    plt.xlabel("Tour numéro")
     plt.plot(x, m[0])
     plt.show()
 
