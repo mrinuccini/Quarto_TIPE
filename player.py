@@ -26,7 +26,7 @@ class Joueur:
         self.niveau = niveau
 
         self.reflexion_time = 0 #Temps de réflexion total sur la partie
-        self.stat = stat()
+        self.stat = stat(typ)
 
         self.best_move :Move= None #Meilleur mouvement
 
@@ -53,11 +53,11 @@ class Joueur:
         """
         if self.type in ("MinMax", "MonteCarlo", "Mix"):
             t1 = time.time()
-
+            profondeur = 0
             match self.type:
                 case "MinMax":
                     if len(pioche) > 13:
-                        score, self.best_move = minmax_premier_coup(plateau, pioche, piece_a_jouer)
+                         score, self.best_move = minmax_premier_coup(plateau, pioche, piece_a_jouer)
                     else:
                         score = 0
                         meilleur_coup_global = None
@@ -73,6 +73,7 @@ class Joueur:
                                 print(f"Profondeur {profondeur} atteinte.")
                         except TimeOutException:
                             print("Temps écoulé !")
+                        self.stat.push_prof(profondeur) #On rajoute la profondeur dans la liste de profondeurs
                 case "MonteCarlo":
                     scores, self.best_moves = mcts(RootState(plateau, pioche, piece_a_jouer), self.c, self.n_simul)
                     self.best_move = self.best_moves[0]
