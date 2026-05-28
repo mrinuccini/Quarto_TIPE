@@ -60,7 +60,7 @@ class Game:
                 nmix = input(f"Combien de résultats avec MC ? (défaut : {param['nmix']}) ")
                 if nmix := "":
                     param["nmix"] = int(nmix)
-            self.list_joueurs += [Joueur(type, param=param)]
+            self.list_joueurs += [Joueur(type, 1, param)]
             print()
 
     def generer_pioche(self):
@@ -172,12 +172,18 @@ class Game:
         f.write(f"Nombre de parties nulles, {self.parties_totales - self.wins[0] - self.wins[1]}\n")
 
         for i in range(2):
-            joueur = self.list_joueurs[i]
+            joueur:Joueur = self.list_joueurs[i]
             f.write(f"J{i+1} : Nombre de victoires, {self.wins[i]}\n")
-            f.write(f"J{i+1} : Temps total de reflexion, {self.sum_reflexion_times[i]}\n")
-            f.write(f"J{i+1} : Temps moyen de reflexion par partie, {self.sum_reflexion_times[i]/self.parties_totales}\n")
-            reflexion_times = preparer_liste_pour_sauvegarde(self.reflexion_times[i])
-            f.write(f"J{i+1} : Temps de reflexion par partie, {reflexion_times}\n")
+
+            #f.write(f"J{i+1} : Temps total de reflexion, {self.sum_reflexion_times[i]}\n")
+            #f.write(f"J{i+1} : Temps moyen de reflexion par partie, {self.sum_reflexion_times[i]/self.parties_totales}\n")
+            #reflexion_times = preparer_liste_pour_sauvegarde(self.reflexion_times[i])
+            #f.write(f"J{i+1} : Temps de reflexion par partie, {reflexion_times}\n")
+            f.write(f"J{i+1} : Temps total de reflexion, {joueur.stat.get_total_reflexion_times()}\n")
+            reflexion_par_partie = preparer_liste_pour_sauvegarde(joueur.stat.get_partie_reflexion_time())
+            f.write(f"J{i+1} : Temps de reflexion par partie, {reflexion_par_partie}\n")
+            reflexion_par_coup = preparer_matrice_pour_sauvegarde(joueur.stat.get_reflexion_time())
+            f.write(f"J{i+1} : Temps de reflexion par coup, {reflexion_par_coup}\n")
 
     def game_loop(self):
         "Boucle de jeu"
