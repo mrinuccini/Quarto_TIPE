@@ -147,13 +147,14 @@ class Game:
         self.wins = [0,0]
         self.reflexion_times = [[], []] #Temps de réflexion par partie
         self.sum_reflexion_times = [0,0]
+        self.max_tour = 0
 
         while self.parties_restantes > 0:
             
             print(f"PARTIE {i}/{self.parties_totales}\n" + "-"*9 + "\n")
 
-            winner = self.game_loop() #On effectue une partie
-
+            winner, nb_tour = self.game_loop() #On effectue une partie
+            self.max_tour = max(self.max_tour, nb_tour)
             self.wins[winner] += 1
             for i2 in range(2):
                 self.reflexion_times[i2] += [self.list_joueurs[i2].reflexion_time]
@@ -170,15 +171,12 @@ class Game:
         f = open("resultats.csv", "w")
         f.write(f"Nombre de parties total, {self.parties_totales}\n")
         f.write(f"Nombre de parties nulles, {self.parties_totales - self.wins[0] - self.wins[1]}\n")
+        f.write(f"Nombre de tour max, {self.max_tour}\n")
 
         for i in range(2):
             joueur:Joueur = self.list_joueurs[i]
             f.write(f"J{i+1} : Nombre de victoires, {self.wins[i]}\n")
 
-            #f.write(f"J{i+1} : Temps total de reflexion, {self.sum_reflexion_times[i]}\n")
-            #f.write(f"J{i+1} : Temps moyen de reflexion par partie, {self.sum_reflexion_times[i]/self.parties_totales}\n")
-            #reflexion_times = preparer_liste_pour_sauvegarde(self.reflexion_times[i])
-            #f.write(f"J{i+1} : Temps de reflexion par partie, {reflexion_times}\n")
             f.write(f"J{i+1} : Temps total de reflexion, {joueur.stat.get_total_reflexion_times()}\n")
             reflexion_par_partie = preparer_liste_pour_sauvegarde(joueur.stat.get_partie_reflexion_time())
             f.write(f"J{i+1} : Temps de reflexion par partie, {reflexion_par_partie}\n")
@@ -187,6 +185,7 @@ class Game:
 
     def game_loop(self):
         "Boucle de jeu"
+        nb_tour = 0
         self.init_var() #Initialisation des variables de jeu
         for i in range(2):
             self.list_joueurs[i].debut_game()
@@ -199,6 +198,8 @@ class Game:
 
         #Lancement de la boucle de jeu
         while self.continuer>0:
+            nb_tour += 1
+
             piece_idx = self.ask_pioche() #Choix de la future pièce à jouer
             piece = self.pioche[piece_idx]
             self.joueur_idx = 1 - self.joueur_idx #Changement de joueur
@@ -212,9 +213,10 @@ class Game:
             self.check() #On vérifie s'il y a victoire ou égalité
 
             self.continuer -= 1
+
         if self.egalite == True:
             print("Égalité, il ne reste plus aucune pièce à jouer !")
             return -1
         
         print(f"Fin de partie, le joueur {self.joueur_idx+1} ({self.list_joueurs[self.joueur_idx].type}) a gagné !")
-        return self.joueur_idx
+        return self.joueur_idx, nb_tour

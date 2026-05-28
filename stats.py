@@ -1,8 +1,10 @@
 "Statistiques en fin de jeu"
 
+#Importations
 import matplotlib.pyplot as plt
 import csv
 from toolbox import *
+from stats_class import *
 
 def get_res():
     "Renvoie le dictionnaire des résultats obtenu"
@@ -13,12 +15,34 @@ def get_res():
         dico[line[0]] = line[1]
     return dico
 
+def get_game_data():
+    "Renvoie les statistiques associées au joueur i (i=0 => statistiques générales)"
+    res = get_res()
+    g = Game_data()
 
-def afficher_reflexion_times(res):
+    g.set_nb_parties(res["Nombre de parties total"])
+    g.set_n_nulles(res["Nombre de parties nulles"])
+    g.push_victoires(res["J1 : Nombre de victoires"])
+    g.push_victoires(res["J2 : Nombre de victoires"])
+    g.set_max_tour(res["Nombre de tour max"])
+    
+    for i in range(1,3):
+        j = stat()
+        j.set_total_rt(res[f"J{i} : Temps total de reflexion"])
+        l = obtenir_liste(res[f"J{i} : Temps de reflexion par partie"], float)
+        j.set_partie_rt(l)
+        m = obtenir_mat(res[f"J{i} : Temps de reflexion par coup"])
+        j.set_reflexion_time(m)
+        g.push_joueur(j)
+
+    return g
+
+
+def afficher_reflexion_times(game_data:Game_data):
     "Affichage du temps de réflexion par partie"
-    n = int(res["Nombre de parties total"])
-    J1_reflexion_times = obtenir_liste(res["J1 : Temps de reflexion par partie"], float)
-    J2_reflexion_times = obtenir_liste(res["J2 : Temps de reflexion par partie"], float)
+    n = game_data.get_n_parties()
+    J1_reflexion_times = game_data.get_joueur(1).get_partie_reflexion_time()
+    J2_reflexion_times = game_data.get_joueur(2).get_partie_reflexion_time()
     parties = range(1, n+1)
     plt.plot(parties, J1_reflexion_times, "b-")
     plt.plot(parties, J2_reflexion_times, "r-")
@@ -26,20 +50,30 @@ def afficher_reflexion_times(res):
     plt.ylabel("Temps de réflexion total (en s)")
     plt.show()
 
-def obtenir_rt_au_tour(m, i):
-    "Renvoie le temps de réflexion moyen au tour i de la matrice m"
-    m[k][i]
+def obtenir_rt_au_tour(game_data:Game_data, jidx, i):
+    "Renvoie le temps de réflexion moyen au tour i de la matrice m pour le joueur jidx"
+    n = game_data.get_n_parties()
+    s = 0
+    for k in range(n):
+        if i>=len(game_data.get_joueur(jidx).get_reflexion_time()[k]):
+            s += game_data.get_joueur(jidx).get_reflexion_time()[k][i]
+    return s / n
 
-def afficher_rt_par_coup(res):
-    m = obtenir_mat(res["J1 : Temps de reflexion par coup"], float)
+def affich_rt_moyen(game_data:Game_data):
+    max_tour = game_data.get_max_tour()
+    J1 = []
+    J2 = []
+    for i in range(max_tour):
+        J1 += [obtenir_rt_au_tour(game_data, 1, i)]
+        J2 += [obtenir_rt_au_tour(game_data, 2, i)]
+    
+    x = range(max_tour)
 
-    count = 0
-    for e in m[0]:
-        count += 1
-    x = range(count)
-    plt.xlabel("Tour numéro")
-    plt.plot(x, m[0])
+    plt.plot(x, J1)
+    plt.plot(x, J2)
     plt.show()
+    
 
-res = get_res()
-afficher_rt_par_coup(res)
+
+game_data = get_game_data()
+obtenir_rt_au_tour(game_data, 1, 0)
