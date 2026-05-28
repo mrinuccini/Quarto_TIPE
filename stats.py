@@ -60,6 +60,8 @@ def obtenir_rt_au_tour(game_data:Game_data, jidx, i):
         if i<len(game_data.get_joueur(jidx).get_reflexion_time()[k]):
             s += game_data.get_joueur(jidx).get_reflexion_time()[k][i]
             n2 += 1
+    if n2==0:
+        return 0
     return s / n2
 
 def affich_rt_moyen(game_data:Game_data):
@@ -80,7 +82,14 @@ def affich_rt_moyen(game_data:Game_data):
     plt.ylabel("Temps de réflexion (en s)")
     plt.show()
     
+def get_nb_tour_partie(game_data:Game_data):
+    "Renvoie le nombre de tour par partie"
+    n = []
+    m = game_data.get_joueur(1).get_reflexion_time()
+    l = [2*len(k) for k in m]
+    return l
 
 
 game_data = get_game_data()
+print(get_nb_tour_partie(game_data))
 affich_rt_moyen(game_data)
