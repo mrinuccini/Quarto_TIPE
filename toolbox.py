@@ -158,11 +158,12 @@ def obtenir_mat(stri, typ):
     elem = ""
     for letter in stri:
         if letter == "#":
-            m += liste
+            m += [liste]
             liste = []
-        if letter == "|":
+            elem = ""
+        elif letter == "|":
             liste += [typ(elem)]
             elem = ""
         else:
             elem += letter
-         
+    return m
