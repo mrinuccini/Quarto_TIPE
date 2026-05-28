@@ -1,7 +1,9 @@
-from random import getrandbits
+from random import getrandbits, seed
 
 class Zobrist:
     def __init__(self):
+        seed(67) # On utilise une graine fixe afin de permettre le chargement d'une table de transposition externe
+
         self.table_plateau = [[getrandbits(64) for _ in range(16)] for _ in range(16)] # Génère les hash de départ pour 16 pièces * 16 cases
         self.table_main = [getrandbits(64) for _ in range(16)]
         self.table_trait = getrandbits(64)

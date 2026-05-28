@@ -31,6 +31,7 @@ def clamp(n, min, max):
 def update_history(case_id: int, piece_a_donner_id: int, bonus):
     """
         cf. https://webdocs.cs.ualberta.ca/~jonathan/publications/ai_publications/pami.pdf
+        cf. https://www.chessprogramming.org/History_Heuristic pour le history gravity formula
     """
     id_coup = (case_id * 16) + piece_a_donner_id
 
