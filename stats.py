@@ -55,10 +55,12 @@ def obtenir_rt_au_tour(game_data:Game_data, jidx, i):
     "Renvoie le temps de réflexion moyen au tour i de la matrice m pour le joueur jidx"
     n = game_data.get_n_parties()
     s = 0
+    n2 = 0
     for k in range(n):
         if i<len(game_data.get_joueur(jidx).get_reflexion_time()[k]):
             s += game_data.get_joueur(jidx).get_reflexion_time()[k][i]
-    return s / n
+            n2 += 1
+    return s / n2
 
 def affich_rt_moyen(game_data:Game_data):
     max_tour = game_data.get_max_tour()
