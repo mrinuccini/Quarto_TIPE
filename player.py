@@ -143,3 +143,6 @@ class Joueur:
                 return random.choice(plateau.recuperer_cases_vides())
             else:
                 return self.best_move.get_place()
+            
+    def get_type(self):
+        return self.type

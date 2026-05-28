@@ -47,6 +47,7 @@ class Game_data:
         self.n_nulles = 0 #Nombre de parties nulles
         self.victoires = [] #Nombre de victoires par joueur
         self.joueurs = []
+        self.types = [] #Types des joueurs
         self.max_tour = 0
 
     def set_nb_parties(self, n):
@@ -60,6 +61,9 @@ class Game_data:
     def set_max_tour(self, max_tour):
         "Modifie le nombre de tour max"
         self.max_tour = max_tour
+
+    def push_type(self, typ):
+        self.types += [typ]
 
     def push_victoires(self,  n_vic):
         "Rajoute un nombre de victoires"
@@ -88,3 +92,7 @@ class Game_data:
     def get_max_tour(self):
         "Renvoie le nombre de tour max"
         return self.max_tour
+    
+    def get_type(self):
+        "Renvoie les types de chaque joueurs"
+        return self.types
