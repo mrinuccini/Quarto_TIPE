@@ -14,7 +14,7 @@ class stat:
         self.partie_rt += [0]
         self.rt += [[]]
         if self.typ == "MinMax":
-            self.profondeur += [[]]
+            self.profondeurs += [[]]
         self.n += 1
 
     def act(self, duree:float):
