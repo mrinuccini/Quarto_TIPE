@@ -65,10 +65,10 @@ class Joueur:
                     else:
                         score = 0
                         meilleur_coup_global = None
-                        score, meilleur_coup_profondeur = minimax(plateau, pioche, piece_a_jouer, profondeur, evaluate1, float("-inf"), float("inf"), zb, t1, 45, maximise=True)
+                        score, meilleur_coup_profondeur = minimax(plateau, pioche, piece_a_jouer, self.max_depth, evaluate1, float("-inf"), float("inf"), zb, t1, float("inf"), maximise=True)
                         self.best_move = meilleur_coup_profondeur        
                         
-                        self.stat.push_prof(1)
+                        self.stat.push_prof(self.max_depth)
                         """
                         try:
                             for profondeur in range(1, 16):
