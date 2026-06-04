@@ -173,11 +173,13 @@ class Game:
         f.write(f"Nombre de parties nulles, {self.parties_totales - self.wins[0] - self.wins[1]}\n")
         f.write(f"Nombre de tour max, {self.max_tour}\n")
 
-
         for i in range(2):
             joueur:Joueur = self.list_joueurs[i]
+            if joueur.get_type() == "MinMax":
+                prof = preparer_matrice_pour_sauvegarde(joueur.stat.get_prof())
+                f.write(f"J{i+1} : Pronfondeurs atteintes, {prof}")
             f.write(f"J{i+1} : Nombre de victoires, {self.wins[i]}\n")
-            f.write(f"J {i+1} : Type de joueur, {self.list_joueurs[i].get_type()}\n")
+            f.write(f"J {i+1} : Type de joueur, {joueur.get_type()}\n")
 
             f.write(f"J{i+1} : Temps total de reflexion, {joueur.stat.get_total_reflexion_times()}\n")
             reflexion_par_partie = preparer_liste_pour_sauvegarde(joueur.stat.get_partie_reflexion_time())

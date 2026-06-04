@@ -1,14 +1,20 @@
 class stat:
     "Instanciation des stats (associées à un joueur)"
-    def __init__(self):
+    def __init__(self, typ):
+        self.typ = typ #type du joueur
         self.total_reflexion_time = 0 #temps de réflexion total
         self.partie_rt = [] #temps de réflexion total par partie
         self.rt = [] #temps de réflexion par coup et par partie
         self.n = -1 #numéro de partie actuelle
 
+        if typ=="MinMax":
+            self.profondeurs = [] #pronfondeurs par coup par partie
+
     def deb_partie(self):
         self.partie_rt += [0]
         self.rt += [[]]
+        if self.typ == "MinMax":
+            self.profondeurs += [[]]
         self.n += 1
 
     def act(self, duree:float):
@@ -16,6 +22,26 @@ class stat:
         self.total_reflexion_time += duree
         self.partie_rt[self.n] += duree
         self.rt[self.n] += [duree]
+
+    def push_prof(self, prof):
+        "Rajoute un coup et une profondeur associée"
+        if self.typ != "MinMax":
+            return
+        self.profondeurs[self.n] += [prof]
+
+    def get_prof(self):
+        "Renvoie les profondeurs"
+        if self.typ != "MinMax":
+            return
+        return self.profondeurs
+    def get_type(self):
+        return self.typ
+    
+    def set_prof(self, prof):
+        "Modifie les profondeurs atteintes"
+        if self.typ != "MinMax":
+            return
+        self.profondeurs = prof
 
     def get_total_reflexion_times(self):
         "Renvoie le temps de réflexion total"
