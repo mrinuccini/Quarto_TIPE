@@ -157,7 +157,7 @@ class Game:
 
         while self.parties_restantes > 0:
             
-            print(f"PARTIE {i}/{self.parties_totales}\n" + "-"*9 + "\n")
+            print(f"PARTIE {i}/{self.parties_totales}\n" + "-"*9 + ("\n" if enable_print else ""))
 
             winner, nb_tour = self.game_loop() #On effectue une partie
             self.max_tour = max(self.max_tour, nb_tour)
@@ -168,7 +168,7 @@ class Game:
             
             self.parties_restantes -= 1
 
-            print("\n\n"+"♫"*100)
+            print(("\n\n" if enable_print else "")+"♫"*100)
             i += 1
         print("\n\n"+"-"*50+"\nToutes les parties ont été jouées")
 
@@ -214,7 +214,7 @@ class Game:
             piece = self.pioche[piece_idx]
             self.joueur_idx = 1 - self.joueur_idx #Changement de joueur
 
-            print("\n")
+            if enable_print: print("\n")
 
             self.debut_tour(piece_idx) #Affichage des informations
 
