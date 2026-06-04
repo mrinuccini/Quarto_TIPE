@@ -25,7 +25,7 @@ class stat:
         "Rajoute un coup et une profondeur associée"
         if self.typ != "MinMax":
             return
-        self.profondeurs[self.n] += [prof]
+        self.profondeurs[self.n-1] += [prof]
 
     def get_prof(self):
         "Renvoie les profondeurs"
