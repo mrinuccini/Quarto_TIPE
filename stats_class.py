@@ -13,6 +13,8 @@ class stat:
     def deb_partie(self):
         self.partie_rt += [0]
         self.rt += [[]]
+        if self.typ == "MinMax":
+            self.profondeur += [[]]
         self.n += 1
 
     def act(self, duree:float):
@@ -25,7 +27,7 @@ class stat:
         "Rajoute un coup et une profondeur associée"
         if self.typ != "MinMax":
             return
-        self.profondeurs[self.n-1] += [prof]
+        self.profondeurs[self.n] += [prof]
 
     def get_prof(self):
         "Renvoie les profondeurs"
