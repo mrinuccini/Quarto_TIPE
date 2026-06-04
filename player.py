@@ -10,6 +10,8 @@ import time
 import pickle
 import os
 
+enable_print = False
+
 TYPES = ["Humain", "MonteCarlo", "MinMax", "RandomBot", "Mix"]
 
 class Joueur:
@@ -93,7 +95,7 @@ class Joueur:
             self.reflexion_time += delta_t
             self.stat.act(delta_t)
 
-            print(f"Score du coup trouvé : {score} (coup : {self.best_move}). Temps de calcul : {(delta_t):.3f}s")
+            if enable_print: print(f"Score du coup trouvé : {score} (coup : {self.best_move}). Temps de calcul : {(delta_t):.3f}s")
 
     def choisir_piece(self, plateau, pioche: list):
         """ Choix d'une pièce que devra placer le joueur suivant, selon le type du joueur """
