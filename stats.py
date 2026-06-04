@@ -27,13 +27,13 @@ def get_game_data():
     g.set_max_tour(int(res["Nombre de tour max"]))
     
     for i in range(1,3):
-        j = stat()
+        j = stat("MinMax")
         j.set_total_rt(float(res[f"J{i} : Temps total de reflexion"]))
         l = obtenir_liste(res[f"J{i} : Temps de reflexion par partie"], float)
         j.set_partie_rt(l)
         m = obtenir_mat(res[f"J{i} : Temps de reflexion par coup"], float)
         j.set_reflexion_time(m)
-        typ = res[f"J {i} : Type de joueur"]
+        typ = res[f"J{i} : Type de joueur"]
         if typ=="MinMax":
             m = obtenir_mat(res[f"J{i+1} : Pronfondeurs atteintes"], int)
             j.set_prof(m)
@@ -96,6 +96,7 @@ def get_nb_tour_partie(game_data:Game_data):
 def affich_prof_partie(game_data:Game_data,jidx,  partie_idx):
     "Affiche les différentes profondeurs atteintes pour MinMax du joueur jidx à la partie idx"
     joueur = game_data.get_joueur(jidx)
+    prof = None
     if joueur.get_type()=="MinMax":
         y = []
         prof = joueur.get_prof()
@@ -114,5 +115,7 @@ def affich_prof_partie(game_data:Game_data,jidx,  partie_idx):
 
 
 game_data = get_game_data()
-print(get_nb_tour_partie(game_data))
-affich_rt_moyen(game_data)
+# print(get_nb_tour_partie(game_data))
+# affich_rt_moyen(game_data)
+#affich_prof_partie(game_data, 0, 0)
+print(game_data.get_joueur(1).get_prof())
