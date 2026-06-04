@@ -3,6 +3,8 @@ from time import sleep
 from zobrist import Zobrist
 import pickle
 
+enable_print = False
+
 class Game:
     #Instanciation du jeux
     def __init__(self, n=1, x=4, y=4):
@@ -71,6 +73,8 @@ class Game:
     
     def afficher_pioche(self):
         "Affichage la pioche"
+        if not enable_print: return
+
         print("PIOCHE ⛏️\n"+"-"*60)
         for key in self.pioche.keys():
             print(f"{key} : {self.pioche[key]}")
@@ -78,6 +82,8 @@ class Game:
 
     def afficher_plateau(self):
         "Affichage du plateau"
+        if not enable_print: return
+
         print("PLATEAU\n"+"-"*60)
         print(self.plateau)
         print()
@@ -117,7 +123,7 @@ class Game:
         """
         Affichage des informations du premier tour (choix de la pièce uniquement)
         """
-        print("/"*80 + f"\nTour du Joueur {self.joueur_idx+1}\n" + "-"*17)
+        if enable_print: print("/"*80 + f"\nTour du Joueur {self.joueur_idx+1}\n" + "-"*17)
         self.list_joueurs[self.joueur_idx].debut_tour(self.plateau, self.pioche, None, self.zb)
         self.afficher_plateau()
         self.afficher_pioche()
@@ -133,9 +139,9 @@ class Game:
         piece = self.pioche[piece_idx] if piece_idx != None else None
         if piece_idx != None: del self.pioche[piece_idx]
 
-        print("/"*80 + f"\nTour du Joueur {self.joueur_idx+1}\n" + "-"*17)
+        if enable_print: print("/"*80 + f"\nTour du Joueur {self.joueur_idx+1}\n" + "-"*17)
         self.list_joueurs[self.joueur_idx].debut_tour(self.plateau, self.pioche, piece, self.zb)
-        if piece_idx != None:
+        if piece_idx != None and enable_print:
             print(f"Pièce à jouer : {piece}")
         self.afficher_plateau()
         self.afficher_pioche()
