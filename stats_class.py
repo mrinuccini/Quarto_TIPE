@@ -65,6 +65,7 @@ class stat:
 
     def set_total_rt(self, total_rt):
         "Modifie le temps de réflexion total"
+        self.total_reflexion_time = total_rt
 
 
 class Game_data:

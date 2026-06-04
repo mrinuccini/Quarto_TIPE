@@ -7,7 +7,7 @@ from toolbox import *
 from stats_class import *
 
 def get_res():
-    "Renvoie le dictionnaire des résultats obtenu"
+    "Renvoie le dictionnaire des résultats obtenus"
     f = open("resultats.csv", "r")
     content = csv.reader(f)
     dico = {}
@@ -16,7 +16,7 @@ def get_res():
     return dico
 
 def get_game_data():
-    "Renvoie les statistiques associées au joueur i (i=0 => statistiques générales)"
+    "Renvoie les statistiques associées au jeu"
     res = get_res()
     g = Game_data()
 
@@ -40,7 +40,6 @@ def get_game_data():
             j.set_prof(m)
         g.push_joueur(j)
        
-
     return g
 
 
@@ -57,7 +56,7 @@ def afficher_reflexion_times(game_data:Game_data):
     plt.show()
 
 def obtenir_rt_au_tour(game_data:Game_data, jidx, i):
-    "Renvoie le temps de réflexion moyen au tour i de la matrice m pour le joueur jidx"
+    "Renvoie le temps de réflexion moyen au tour i de gmae data pour le joueur jidx"
     n = game_data.get_n_parties()
     s = 0
     n2 = 0
@@ -150,7 +149,23 @@ def affich_prof(game_data:Game_data, jidx):
     plt.plot(0,0, label="O")
     plt.show()  
 
+def get_moyenne_par_coup(game_data:Game_data, jidx):
+    "Renvoie le temps de réflexion total moyen sur toutes les parties du joueur jidx (commence à 1)"
+    assert(jidx in (1,2))
+    y = game_data.get_joueur(jidx).get_reflexion_time()
+
+    #On compte le nombre de coups joués au total
+    n = 0
+    for i in range(len(y)):
+        ligne = y[i]
+        for j in range(len(ligne)):
+            n += 1
+
+    moy = game_data.get_joueur(jidx).get_total_reflexion_times() / n
+    return moy
+
 game_data = get_game_data()
 # print(get_nb_tour_partie(game_data))
-# affich_rt_moyen(game_data)
-affich_prof(game_data, 1)
+#affich_rt_moyen(game_data)
+
+print(get_moyenne_par_coup(game_data,1))
