@@ -115,8 +115,42 @@ def affich_prof_partie(game_data:Game_data,jidx,  partie_idx):
     plt.show()
 
 
+def obtenir_profondeur_au_tour(game_data:Game_data, jidx, i):
+    "Renvoie la profondeur moyenne au tour i de la matrice m pour le joueur jidx"
+    n = game_data.get_n_parties()
+    s = 0
+    n2 = 0
+    for k in range(n):
+        if i<len(game_data.get_joueur(jidx).get_prof()[k]):
+            s += game_data.get_joueur(jidx).get_prof()[k][i]
+            n2 += 1
+    if n2==0:
+        return 0
+    return s / n2
+
+def affich_prof(game_data:Game_data, jidx):
+    "Affiche les différentes profondeurs atteintes pour MinMax du joueur jidx (commence à 1) "
+    joueur = game_data.get_joueur(jidx)
+    prof = None
+    if joueur.get_type()=="MinMax":
+        y = []
+        prof = joueur.get_prof()
+
+    max_tour = game_data.get_max_tour()
+    m = [] 
+    for i in range(max_tour):
+        m += [obtenir_profondeur_au_tour(game_data, jidx, i)]
+    
+    x = range(max_tour)
+
+    plt.plot(x, m, "r-", label=f"J{jidx}")
+    plt.title(f"Profondeurs atteintes moyennes")
+    plt.xlabel("Tour numéro")
+    plt.ylabel("Profondeur maximale atteinte")
+    plt.plot(0,0, label="O")
+    plt.show()  
 
 game_data = get_game_data()
 # print(get_nb_tour_partie(game_data))
 # affich_rt_moyen(game_data)
-affich_prof_partie(game_data, 1, 0)
+affich_prof(game_data, 1)

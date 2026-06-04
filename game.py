@@ -220,7 +220,7 @@ class Game:
 
         if self.egalite == True:
             print("Égalité, il ne reste plus aucune pièce à jouer !")
-            return -1, nb_tour
+            return -1, (nb_tour)//2
         
         print(f"Fin de partie, le joueur {self.joueur_idx+1} ({self.list_joueurs[self.joueur_idx].type}) a gagné !")
         return self.joueur_idx, nb_tour
