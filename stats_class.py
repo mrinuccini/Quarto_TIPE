@@ -95,4 +95,4 @@ class Game_data:
     
     def get_type(self):
         "Renvoie les types de chaque joueurs"
-        return self.types
+        return self.types 

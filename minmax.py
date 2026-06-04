@@ -6,6 +6,9 @@ from zobrist import Zobrist
 from random import randrange, choice
 import time
 
+enable_zobrist = False 
+enable_history_heurisitc = False
+
 class TimeOutException(Exception):
     """
     Exception levée Quand MinMax a dépassé le temps impparti pour sa recherche
@@ -28,11 +31,14 @@ def clamp(n, min, max):
     else:
         return n
 
-def update_history(case_id: int, piece_a_donner_id: int, bonus):
+def update_history(case_id: int, piece_a_donner_id: int, bonus) -> None:
     """
         cf. https://webdocs.cs.ualberta.ca/~jonathan/publications/ai_publications/pami.pdf
         cf. https://www.chessprogramming.org/History_Heuristic pour le history gravity formula
     """
+    if not enable_history_heurisitc:
+        return
+
     id_coup = (case_id * 16) + piece_a_donner_id
 
     clamped_bonus = clamp(bonus, -MAX_HISTORY, MAX_HISTORY)
@@ -68,12 +74,15 @@ def minmax_premier_coup(plateau: Plateau, pioche: dict, piece_a_placer: Piece) -
 
 def sort_move(move: tuple, plateau: Plateau, pioche: dict, coup_prioritaire: Move) -> int:
     # On joue le coup prioritaire en premier
-    if coup_prioritaire is not None and move[0] == coup_prioritaire.place and move[1] == coup_prioritaire.piece_idx:
+    if coup_prioritaire is not None and move[0] == coup_prioritaire.place and move[1] == coup_prioritaire.piece_idx and enable_zobrist:
         return -99999999
     
     # Puis les coups dans l'history heuristic
-    coup_id = move[0] * 16 + move[1]
-    return -history[coup_id]
+    if enable_history_heurisitc:
+        coup_id = move[0] * 16 + move[1]
+        return -history[coup_id]
+    else:
+        return 0
 
 def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: int, f_eval, alpha: int, beta: int, zb: Zobrist, t_start: float, t_max: float, maximise: bool=True) -> tuple:
     """
@@ -91,7 +100,8 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
         meilleur_coup = None
         coup_prioritaire = None
 
-        if zb.get_canonical_hash() in transposition_table:
+
+        if enable_zobrist and zb.get_canonical_hash() in transposition_table:
             data = transposition_table[zb.get_canonical_hash()]
             if data["profondeur"] >= max_depth:
                 return data["score"], data["move"]
@@ -118,9 +128,9 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
                     return 0, Move(case, None) # 0: score nul parfait
 
                 del pioche[piece_id]
-                hash_sauvegarde = list(zb.hash_actuels)
+                if enable_zobrist: hash_sauvegarde = list(zb.hash_actuels)
                 piece_en_main_sauvegarde = zb.piece_en_main
-                zb.jouer_coup(case, piece_id)
+                if enable_zobrist: zb.jouer_coup(case, piece_id)
 
                 try:
                     f_score, _ = minimax(plateau, pioche, piece, (max_depth - 1), f_eval, max(alpha, max_eval), beta, zb, t_start, t_max, maximise=False)
@@ -135,12 +145,15 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
                             return max_eval, meilleur_coup
                 finally:
                     pioche[piece_id] = piece # backtracking, on annule la pièce qu'on avait choisit
-                            
-                    zb.hash_actuels = hash_sauvegarde
-                    zb.piece_en_main = piece_en_main_sauvegarde
+
+                        
+                    if enable_zobrist:
+                        zb.hash_actuels = hash_sauvegarde
+                        zb.piece_en_main = piece_en_main_sauvegarde
+
                     plateau.placer_piece_1D(case, None) # Backtracking on annule le coup qu'on avait joué
 
-            transposition_table[zb.get_canonical_hash()] = {"profondeur": max_depth, "score": max_eval, "move": meilleur_coup}
+            if enable_zobrist: transposition_table[zb.get_canonical_hash()] = {"profondeur": max_depth, "score": max_eval, "move": meilleur_coup}
             return max_eval, meilleur_coup
         else:
             min_eval = 200000
@@ -162,9 +175,9 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
                     return 0, Move(case, None) # 0: score nul parfait
 
                 del pioche[piece_id]
-                hash_sauvegarde = list(zb.hash_actuels)
+                if enable_zobrist: hash_sauvegarde = list(zb.hash_actuels)
                 piece_en_main_sauvegarde = zb.piece_en_main
-                zb.jouer_coup(case, piece_id)
+                if enable_zobrist: zb.jouer_coup(case, piece_id)
 
                 try:
                     f_score, _ = minimax(plateau, pioche, piece, (max_depth - 1), f_eval, alpha, min(beta, min_eval), zb, t_start, t_max, maximise=True)
@@ -179,12 +192,14 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
                             return min_eval, meilleur_coup
                 finally:
                     pioche[piece_id] = piece # backtracking, on annule la pièce qu'on avait choisit
-                            
-                    zb.hash_actuels = hash_sauvegarde
-                    zb.piece_en_main = piece_en_main_sauvegarde
+
+                    if enable_zobrist:     
+                        zb.hash_actuels = hash_sauvegarde
+                        zb.piece_en_main = piece_en_main_sauvegarde
+
                     plateau.placer_piece_1D(case, None) # Backtracking on annule le coup qu'on avait joué
 
-            transposition_table[zb.get_canonical_hash()] = {"profondeur": max_depth, "score": min_eval, "move": meilleur_coup}
+            if enable_zobrist: transposition_table[zb.get_canonical_hash()] = {"profondeur": max_depth, "score": min_eval, "move": meilleur_coup}
             return min_eval, meilleur_coup
 
 def generer_coups_legaux(plateau: Plateau, pioche: dict):
