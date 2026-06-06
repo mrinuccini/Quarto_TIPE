@@ -68,7 +68,22 @@ def obtenir_rt_au_tour(game_data:Game_data, jidx, i):
         return 0
     return s / n2
 
-def affich_rt_moyen(game_data:Game_data):
+def affich_rt_moyen(game_data:Game_data, title = "Temps de réflexion moyen selon le tour", precision="", j1_string = "", j2_string = ""):
+    """Affiche le temps de réflexion par coup moyen pour toutes les parties jouées
+    Paramètres :
+        game_data : données résultantes du jeu
+        title : titre du graphe
+        precision : précision après le titre du graphe
+        j1_string : texte à afficher pour J1
+        j2_string : texte à afficher pour J2
+    """
+    assert(type(j1_string)==type(j2_string)==type(title)==type(precision)==str)
+
+    if j1_string == "":
+        j1_string = f"J1 {game_data.get_type()[0]}"
+    if j2_string == "":
+        j2_string = f"J2 {game_data.get_type()[1]}"
+
     max_tour = game_data.get_max_tour()
     J1 = []
     J2 = []
@@ -78,10 +93,10 @@ def affich_rt_moyen(game_data:Game_data):
     
     x = range(max_tour)
 
-    plt.plot(x, J1, "r-",label=f"J1 {game_data.get_type()[0]}")
-    plt.plot(x, J2, "b-", label=f"J2 {game_data.get_type()[1]}")
+    plt.plot(x, J1, "r-",label=j1_string)
+    plt.plot(x, J2, "b-", label=j2_string)
     plt.legend()
-    plt.title("Temps de réflexion moyen selon le tour")
+    plt.title(title+precision)
     plt.xlabel("Numéro du tour")
     plt.ylabel("Temps de réflexion (en s)")
     plt.show()
@@ -164,8 +179,14 @@ def get_moyenne_par_coup(game_data:Game_data, jidx):
     moy = game_data.get_joueur(jidx).get_total_reflexion_times() / n
     return moy
 
-game_data = get_game_data()
-# print(get_nb_tour_partie(game_data))
-#affich_rt_moyen(game_data)
+def affich_vict(game_data:Game_data):
+    n1 = game_data.get_victoires()[0]
+    n2 = game_data.get_victoires()[1]
+    N = game_data.get_n_parties()
+    nul = game_data.get_n_parties_nulles()
 
-print(get_moyenne_par_coup(game_data,1))
+    
+
+game_data = get_game_data()
+
+affich_rt_moyen(game_data, precision=" (n_simul = 1000)", j1_string="J1 MonteCarlo c=1.0", j2_string="J2 MonteCarlo c=2.0")
