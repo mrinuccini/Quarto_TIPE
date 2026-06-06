@@ -179,7 +179,7 @@ def get_moyenne_par_coup(game_data:Game_data, jidx):
     moy = game_data.get_joueur(jidx).get_total_reflexion_times() / n
     return moy
 
-def affich_vict(game_data:Game_data, j1_string="", j2_string=""):
+def affich_vict(game_data:Game_data, j1_string="", j2_string="", precision=""):
     n1 = game_data.get_victoires()[0]
     n2 = game_data.get_victoires()[1]
     N = game_data.get_n_parties()
@@ -192,11 +192,13 @@ def affich_vict(game_data:Game_data, j1_string="", j2_string=""):
 
     x = ["Nb Victoires de J1\n"+j1_string,"Nb Victoires de J2\n"+j2_string, "Nb Parties Nulles"]
     y = [n1, n2, nul]
-    plt.bar(x,y)
-    plt.title(f"Nb Victoires après {N} parties")
+    col = ["red", "blue", "green"]
+    plt.bar(x,y, color=col)
+    plt.title(f"Nb Victoires après {N} parties"+precision)
     plt.show()
+
 
 game_data = get_game_data()
 
 #affich_rt_moyen(game_data, precision=" (n_simul = 1000)", j1_string="J1 MonteCarlo c=1.0", j2_string="J2 MonteCarlo c=2.0")
-affich_vict(game_data)
+affich_vict(game_data, "MonteCarlo (c=1.0)", "MonteCarlo (c=2.0)", "\n(n_simul = 1000)")
