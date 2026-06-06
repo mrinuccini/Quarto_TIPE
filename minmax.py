@@ -6,8 +6,8 @@ from zobrist import Zobrist
 from random import randrange, choice
 import time
 
-enable_zobrist = True 
-enable_history_heurisitc = True
+enable_zobrist = False 
+enable_history_heurisitc = False
 
 class TimeOutException(Exception):
     """

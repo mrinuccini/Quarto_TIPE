@@ -10,6 +10,8 @@ import time
 import pickle
 import os
 
+enable_print = False
+
 TYPES = ["Humain", "MonteCarlo", "MinMax", "RandomBot", "Mix"]
 
 class Joueur:
@@ -32,10 +34,6 @@ class Joueur:
 
         if self.type == "MinMax" or self.type == "Mix":
             self.max_depth = param["max_depth"]
-            if os.path.isfile("transpositions.tbl"):
-                with open("transpositions.tbl", 'rb') as tbl:
-                    transposition_table = pickle.load(tbl)
-                    print(f"loaded transposition table of size : {len(transposition_table)}")
         if self.type == "MonteCarlo" or self.type=="Mix":
             self.c = param["c"]
             self.n_simul = param["n_simul"]
@@ -44,6 +42,12 @@ class Joueur:
 
 
     def debut_game(self):
+        if self.type == "MinMax" or self.type == "Mix":
+            if os.path.isfile("transpositions.tbl"):
+                with open("transpositions.tbl", 'rb') as tbl:
+                    transposition_table = pickle.load(tbl)
+                    print(f"loaded transposition table of size : {len(transposition_table)}")
+
         self.reflexion_time = 0
         self.stat.deb_partie()
 
@@ -61,7 +65,11 @@ class Joueur:
                     else:
                         score = 0
                         meilleur_coup_global = None
-
+                        score, meilleur_coup_profondeur = minimax(plateau, pioche, piece_a_jouer, self.max_depth, evaluate1, float("-inf"), float("inf"), zb, t1, float("inf"), maximise=True)
+                        self.best_move = meilleur_coup_profondeur        
+                        
+                        self.stat.push_prof(self.max_depth)
+                        """
                         try:
                             for profondeur in range(1, 16):
                                 score, meilleur_coup_profondeur = minimax(plateau, pioche, piece_a_jouer, profondeur, evaluate1, float("-inf"), float("inf"), zb, t1, 45, maximise=True)
@@ -74,6 +82,7 @@ class Joueur:
                         except TimeOutException:
                             print("Temps écoulé !")
                         self.stat.push_prof(profondeur) #On rajoute la profondeur dans la liste de profondeurs
+                        """
                 case "MonteCarlo":
                     scores, self.best_moves = mcts(RootState(plateau, pioche, piece_a_jouer), self.c, self.n_simul)
                     self.best_move = self.best_moves[0]
@@ -86,7 +95,7 @@ class Joueur:
             self.reflexion_time += delta_t
             self.stat.act(delta_t)
 
-            print(f"Score du coup trouvé : {score} (coup : {self.best_move}). Temps de calcul : {(delta_t):.3f}s")
+            if enable_print: print(f"Score du coup trouvé : {score} (coup : {self.best_move}). Temps de calcul : {(delta_t):.3f}s")
 
     def choisir_piece(self, plateau, pioche: list):
         """ Choix d'une pièce que devra placer le joueur suivant, selon le type du joueur """
