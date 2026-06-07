@@ -4,6 +4,7 @@ from zobrist import Zobrist
 import pickle
 
 enable_print = False
+write_in_game = True #Si on modifie le fichier resultat.csv en cours de jeu
 
 class Game:
     #Instanciation du jeux
@@ -167,6 +168,9 @@ class Game:
                 self.reflexion_times[i2] += [self.list_joueurs[i2].reflexion_time]
                 self.sum_reflexion_times[i2] += self.list_joueurs[i2].reflexion_time
             
+            if write_in_game==True:
+                self.write()
+
             self.parties_restantes -= 1
 
             print(("\n\n" if enable_print else "")+"♫"*100)
