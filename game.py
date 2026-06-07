@@ -161,7 +161,8 @@ class Game:
 
             winner, nb_tour = self.game_loop() #On effectue une partie
             self.max_tour = max(self.max_tour, nb_tour)
-            self.wins[winner] += 1
+            if winner != -1:
+                self.wins[winner] += 1
             for i2 in range(2):
                 self.reflexion_times[i2] += [self.list_joueurs[i2].reflexion_time]
                 self.sum_reflexion_times[i2] += self.list_joueurs[i2].reflexion_time

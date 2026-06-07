@@ -200,5 +200,5 @@ def affich_vict(game_data:Game_data, j1_string="", j2_string="", precision=""):
 
 game_data = get_game_data()
 
-#affich_rt_moyen(game_data, precision=" (n_simul = 1000)", j1_string="J1 MonteCarlo c=1.0", j2_string="J2 MonteCarlo c=2.0")
-affich_vict(game_data, "MonteCarlo (c=1.0)", "MonteCarlo (c=2.0)", "\n(n_simul = 1000)")
+affich_rt_moyen(game_data, j1_string="J1 MonteCarlo (n_simul=5000)", j2_string="J2 MinMax")
+affich_vict(game_data, "MonteCarlo", "MinMax")
