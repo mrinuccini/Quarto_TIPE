@@ -143,6 +143,8 @@ class Node_MCTS(Node):
         """
         if self.visited == 0:
             return float('inf')
+        if self.parent is None or self.parent.visited == 0:
+            return self.win / self.visited
         return self.win / self.visited + c*sqrt(log(self.parent.visited) / self.visited)
 
     def get_parent(self):

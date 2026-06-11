@@ -3,33 +3,31 @@ from plateau import *
 from Tree import *
 from random import choice, shuffle
 
-def remplir_safe_and_dangerous_lists(state, cases):
-    """ Renvoie les pièces que l'on peut jouer et celle qu'il ne faut pas jouer
+def remplir_safe_and_dangerous_lists(state):
+    """Renvoie les pièces sûres et dangereuses après avoir placé la pièce courante.
      Paramètres :
-        state : état du jeu
-         cases : ensemble des cases possibles
+        state : état du jeu après placement de la pièce courante
     Renvoie :
         safe_pieces_list, dangerous_pieces_list
       """
     safe_pieces_list = []
     dangerous_pieces_list = []
 
-    for piece in state.pioche.keys():
-            safe = True
-            for c in cases:
-                state.plateau.placer_piece_1D(c, state.pioche[piece])
-                if state.plateau.verifier_alignements(): #Si on peut perdre on donnant cette pièce
-                    safe = False
-                
-                state.plateau.placer_piece_1D(c, None) #On annule le coup joué
+    for piece_id, piece in state.pioche.items():
+        safe = True
+        for c in state.plateau.recuperer_cases_vides():
+            state.plateau.placer_piece_1D(c, piece)
+            if state.plateau.verifier_alignements():  # Si l'adversaire peut gagner immédiatement
+                safe = False
+            state.plateau.placer_piece_1D(c, None)
+            if not safe:
+                break
 
-                if not safe:
-                    break
+        if safe:
+            safe_pieces_list.append(piece_id)
+        else:
+            dangerous_pieces_list.append(piece_id)
 
-            if safe:
-                safe_pieces_list += [piece]
-            else:
-                dangerous_pieces_list += [piece]
     return safe_pieces_list, dangerous_pieces_list
 
 
@@ -50,11 +48,11 @@ def selection(node:Node_MCTS, c, state):
     return node #On renvoie le meilleur enfant
 
 def expansion(node:Node_MCTS, state: RootState):
-    """Phase d'Expansion, on descend dans l'arbre
-        Renvoie un noeud enfant
+    """Phase d'Expansion, on descend dans l'arbre.
+        Crée un nouvel enfant correspondant à un coup non essayé.
     """
 
-    #Génération des mouvements non essayés associé au noeud
+    # Génération des mouvements non essayés associés au noeud
     if node.get_untried_moves() is None:
         cases = state.plateau.recuperer_cases_vides()
         pieces = list(state.pioche.keys())
@@ -64,17 +62,17 @@ def expansion(node:Node_MCTS, state: RootState):
     if not node.get_untried_moves():
         return node
 
-    #On récupère un Move non essayé
+    # On récupère un Move non essayé
     coup: Move = node.get_untried_moves().pop()
     piece_id, case = coup.get_piece_idx(), coup.get_place()
     piece_a_jouer = state.piece_a_jouer
 
-    #On joue le coup
-    state.plateau.placer_piece_1D(case, piece_a_jouer) #On place la pièce sur le plateau
+    # On joue le coup
+    state.plateau.placer_piece_1D(case, piece_a_jouer)
     piece_suivante = state.pioche.pop(piece_id)
     state.piece_a_jouer = piece_suivante
 
-    #Création de l'enfant
+    # Création de l'enfant
     nouvel_enfant = Node_MCTS(coup, node)
     node.insert(nouvel_enfant)
 
@@ -82,43 +80,57 @@ def expansion(node:Node_MCTS, state: RootState):
 
 def simulation(state:RootState):
     """Phase de simulation, on simule une partie au hasard
-        Renvoie : 1 si on gagne, 0 si on perd, 0.5 si nul
+        Renvoie : 1 si le joueur 1 gagne, 0 si le joueur 2 gagne, 0.5 si nul
     """
+    player_turn = 1  # Joueur 2 va jouer (après le coup du joueur 1 à la racine)
+    player_turn = 2
 
-    tours_joues = 0
-    while not state.plateau.verifier_alignements():    #Tant qu'on n'a pas gagné
+    while not state.plateau.verifier_alignements():
         cases = state.plateau.recuperer_cases_vides()
-        if not cases:  # Si pas de case disponible
-            return 0.5
+        if not cases:
+            return 0.5  # Nul
 
-        case = None
-
-        #On vérifie si un coup nous fait gagner ou perdre à coup sûr
-        for c in cases: #Pour chaque case possible, on joue le coup
+        # On choisit le meilleur coup possible (maximal safe pieces for next player)
+        best_cases = []
+        best_safe_piece_count = -1
+        for c in cases:
             state.plateau.placer_piece_1D(c, state.piece_a_jouer)
-            if state.plateau.verifier_alignements(): #Si victoire
+            if not state.plateau.verifier_alignements():
+                safe_piece_ids, _ = remplir_safe_and_dangerous_lists(state)
+                score = len(safe_piece_ids)
+                if score > best_safe_piece_count:
+                    best_safe_piece_count = score
+                    best_cases = [c]
+                elif score == best_safe_piece_count:
+                    best_cases.append(c)
+            else:
                 state.plateau.placer_piece_1D(c, None)
-                return 1 if tours_joues % 2 == 0 else 0 #Renvoie 1 si on gagne, 0 si on perd
-            state.plateau.placer_piece_1D(c, None) #On annule le coup joué
+                # Ce coup crée un alignement pour le joueur courant
+                return 0 if player_turn == 2 else 1
+            state.plateau.placer_piece_1D(c, None)
 
-        case = choice(cases)
-
-        safe_pieces_list, dangerous_pieces_list = remplir_safe_and_dangerous_lists(state, cases)
-
-        #On choisit une pièce safe si on peut
-        piece_id_choisie = None
-        if safe_pieces_list != []:
-            piece_id_choisie = choice(safe_pieces_list) 
+        if best_cases:
+            case = choice(best_cases)
         else:
-            if dangerous_pieces_list != []:
-                piece_id_choisie = choice(dangerous_pieces_list)
+            case = choice(cases)
 
         state.plateau.placer_piece_1D(case, state.piece_a_jouer)
-        if piece_id_choisie is not None: state.piece_a_jouer = state.pioche.pop(piece_id_choisie)
+        safe_pieces_list, dangerous_pieces_list = remplir_safe_and_dangerous_lists(state)
 
-        tours_joues += 1
+        piece_id_choisie = None
+        if safe_pieces_list:
+            piece_id_choisie = choice(safe_pieces_list)
+        elif dangerous_pieces_list:
+            piece_id_choisie = choice(dangerous_pieces_list)
 
-    return 1 if tours_joues % 2 == 0 else 0 #Renvoie si on gagne ou perd selon dernier joueur à avoir joué
+        if piece_id_choisie is not None:
+            state.piece_a_jouer = state.pioche.pop(piece_id_choisie)
+
+        player_turn = 1 if player_turn == 2 else 2
+
+    # Quelqu'un a gagné
+    winner = 1 if player_turn == 2 else 2
+    return 1 if winner == 1 else 0
 
 def backpropagate(node:Node_MCTS, result):
     "Backpropagation, on applique les changements aux noeuds"
