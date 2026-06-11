@@ -37,23 +37,67 @@ class Game:
 
     def load(self, name):
         game_data = get_game_data(name)
-        self.parties_totales = game_data.get_n_parties()
-        self.init_player()
+
+        string = input("Rajouter cb cde parties à jouer ? (défaut:0) : ")
+        if string=="":
+            string="0"
+        offset = int(string)
+
+        self.parties_totales = game_data.get_n_parties() + offset
+        self.list_joueurs = []
 
         for i in range(2):
             j : stat = game_data.get_joueur(i+1)
-            j_out : Joueur = self.list_joueurs[i]
+            typ = j.get_type()
+            dico = {}
+            if typ =="MonteCarlo":
+                dico["n_simul"] = j.get_n_simul()
+                dico["c"] = j.get_c()
+            elif typ == "MinMax":
+                dico["max_depth"] = 4
+            j_out : Joueur = Joueur(typ, param=dico)
             j_out.stat.set_reflexion_time(j.get_reflexion_time())
             j_out.stat.set_partie_rt(j.get_partie_reflexion_time())
             j_out.stat.set_total_rt(j.get_total_reflexion_times())
             if j_out.get_type()=="MinMax":
                 j_out.stat.set_prof(j.get_prof())
-            self.list_joueurs[i] = j_out
+
+            self.list_joueurs += [j_out]
 
         self.max_tour = game_data.get_max_tour()
         self.wins = game_data.get_victoires()
         self.nulles = game_data.get_n_parties_nulles()
         self.parties_restantes = self.parties_totales - self.wins[0] - self.wins[1] - self.nulles
+
+    def write(self):
+        "Écrit le fichier des résultats de la simulation"
+        f = open(self.name+".csv", "w")
+        f.write(f"Nombre de parties total, {self.parties_totales}\n")
+        f.write(f"Nombre de parties nulles, {self.nulles}\n")
+        f.write(f"Nombre de tour max, {self.max_tour}\n")
+
+        for i in range(2):
+            joueur:Joueur = self.list_joueurs[i]
+
+            match joueur.get_type():
+                case "MinMax":
+                    prof = preparer_matrice_pour_sauvegarde(joueur.stat.get_prof())
+                    f.write(f"J{i+1} : Pronfondeurs atteintes, {prof}\n")
+                
+                case "MonteCarlo":
+                    c = joueur.stat.get_c()
+                    f.write(f"J{i+1} : c, {c}\n")
+                    n_simul = joueur.stat.get_n_simul()
+                    f.write(f"J{i+1} : n_simul, {n_simul}\n")
+
+            f.write(f"J{i+1} : Nombre de victoires, {self.wins[i]}\n")
+            f.write(f"J{i+1} : Type de joueur, {joueur.get_type()}\n")
+
+            f.write(f"J{i+1} : Temps total de reflexion, {joueur.stat.get_total_reflexion_times()}\n")
+            reflexion_par_partie = preparer_liste_pour_sauvegarde(joueur.stat.get_partie_reflexion_time())
+            f.write(f"J{i+1} : Temps de reflexion par partie, {reflexion_par_partie}\n")
+            reflexion_par_coup = preparer_matrice_pour_sauvegarde(joueur.stat.get_reflexion_time())
+            f.write(f"J{i+1} : Temps de reflexion par coup, {reflexion_par_coup}\n")
 
     def ask_n_parties(self):
         "On demande le nombre de parties à jouer"
@@ -220,27 +264,6 @@ class Game:
             print(("\n\n" if enable_print else "")+"♫"*100)
             i += 1
         print("\n\n"+"-"*50+"\nToutes les parties ont été jouées")
-
-    def write(self):
-        "Écrit le fichier des résultats de la simulation"
-        f = open(self.name+".csv", "w")
-        f.write(f"Nombre de parties total, {self.parties_totales}\n")
-        f.write(f"Nombre de parties nulles, {self.nulles}\n")
-        f.write(f"Nombre de tour max, {self.max_tour}\n")
-
-        for i in range(2):
-            joueur:Joueur = self.list_joueurs[i]
-            if joueur.get_type() == "MinMax":
-                prof = preparer_matrice_pour_sauvegarde(joueur.stat.get_prof())
-                f.write(f"J{i+1} : Pronfondeurs atteintes, {prof}\n")
-            f.write(f"J{i+1} : Nombre de victoires, {self.wins[i]}\n")
-            f.write(f"J{i+1} : Type de joueur, {joueur.get_type()}\n")
-
-            f.write(f"J{i+1} : Temps total de reflexion, {joueur.stat.get_total_reflexion_times()}\n")
-            reflexion_par_partie = preparer_liste_pour_sauvegarde(joueur.stat.get_partie_reflexion_time())
-            f.write(f"J{i+1} : Temps de reflexion par partie, {reflexion_par_partie}\n")
-            reflexion_par_coup = preparer_matrice_pour_sauvegarde(joueur.stat.get_reflexion_time())
-            f.write(f"J{i+1} : Temps de reflexion par coup, {reflexion_par_coup}\n")
 
     def game_loop(self):
         "Boucle de jeu"

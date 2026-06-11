@@ -26,7 +26,13 @@ def get_game_data(name="resultats"):
     
     for i in range(1,3):
         typ = res[f"J{i} : Type de joueur"][1:]
-        j = stat(typ)
+        dico = {}
+        if typ=="MonteCarlo":
+            c = float(res[f"J{i} : c"])
+            n_simul = int(res[f"J{i} : n_simul"])
+            dico["c"]=c
+            dico["n_simul"]=n_simul
+        j = stat(typ, dico)
         j.set_total_rt(float(res[f"J{i} : Temps total de reflexion"]))
         l = obtenir_liste(res[f"J{i} : Temps de reflexion par partie"], float)
         j.set_partie_rt(l)
@@ -36,6 +42,9 @@ def get_game_data(name="resultats"):
         if typ=="MinMax":
             m = obtenir_mat(res[f"J{i} : Pronfondeurs atteintes"], int)
             j.set_prof(m)
+        if typ=="MonteCarlo":
+            j.set_c(c)
+            j.set_n_simul(n_simul)
         g.push_joueur(j)
        
     return g

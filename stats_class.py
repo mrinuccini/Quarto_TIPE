@@ -1,6 +1,6 @@
 class stat:
     "Instanciation des stats (associées à un joueur)"
-    def __init__(self, typ):
+    def __init__(self, typ, dico={}):
         self.typ = typ #type du joueur
         self.total_reflexion_time = 0 #temps de réflexion total
         self.partie_rt = [] #temps de réflexion total par partie
@@ -10,12 +10,28 @@ class stat:
         if typ=="MinMax":
             self.profondeurs = [] #pronfondeurs par coup par partie
 
+        if typ=="MonteCarlo":
+            self.c = dico["c"]
+            self.n_simul = dico["n_simul"]
+
     def deb_partie(self):
         self.partie_rt += [0]
         self.rt += [[]]
         if self.typ == "MinMax":
             self.profondeurs += [[]]
         self.n += 1
+
+    def set_c(self, c):
+        self.c = c
+
+    def get_c(self):
+        return self.c
+    
+    def set_n_simul(self, n_simul):
+        self.n_simul = n_simul
+
+    def get_n_simul(self):
+        return self.n_simul
 
     def act(self, duree:float):
         "Rajoute un coup de duree secondes pour la partie actuelle"

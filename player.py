@@ -28,7 +28,10 @@ class Joueur:
         self.niveau = niveau
 
         self.reflexion_time = 0 #Temps de réflexion total sur la partie
-        self.stat = stat(typ)
+        dico = {}
+        if self.type=="MonteCarlo":
+            dico = {"c":param["c"], "n_simul":param["n_simul"]}
+        self.stat = stat(typ, dico)
 
         self.best_move :Move= None #Meilleur mouvement
 
