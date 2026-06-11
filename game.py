@@ -21,9 +21,16 @@ class Game:
         self.zb = Zobrist()
         self.parties_totales = n #Nombre de parties totales
         self.x, self.y = x, y #Nombre de colonnes et de lignes du plateau
+        self.ask_name()
         self.init_player()
         self.game_launch() #On lance le jeu
         self.write() #On écrit le fichier des résultats
+        
+    def ask_name(self):
+        string = input("Quel nom de fichier où sauvegarder (défaut : resultats) : ")
+        if string == "":
+            string = "resultats"
+        self.name = string
 
     def get_nb_of_columns(self):
         "Renvoie le nombre de colonnes du plateau"
@@ -179,7 +186,7 @@ class Game:
 
     def write(self):
         "Écrit le fichier des résultats de la simulation"
-        f = open("resultats.csv", "w")
+        f = open(self.name+".csv", "w")
         f.write(f"Nombre de parties total, {self.parties_totales}\n")
         f.write(f"Nombre de parties nulles, {self.parties_totales - self.wins[0] - self.wins[1]}\n")
         f.write(f"Nombre de tour max, {self.max_tour}\n")
