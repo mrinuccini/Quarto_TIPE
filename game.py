@@ -1,7 +1,4 @@
-from player import *
-from time import sleep
-from zobrist import Zobrist
-import pickle
+from load import *
 
 enable_print = False
 write_in_game = True #Si on modifie le fichier resultat.csv en cours de jeu
@@ -20,11 +17,40 @@ class Game:
         self.zb = Zobrist()
         self.x, self.y = x, y #Nombre de colonnes et de lignes du plateau
         self.ask_name()
-        self.ask_n_parties()
-        self.init_player()
+        self.ask_load()
         self.game_launch() #On lance le jeu
         self.write() #On écrit le fichier des résultats
-        
+
+    def ask_load(self):
+        string = input("Charger une partie (Y/n) (defaut:n) : ")
+        if string == "":
+            string = "n"
+        if string == "Y":
+            string2 = input("Quel fichier charger (defaut : resultat) : ")
+            if string2 == "":
+                string2 = "resultats"
+            self.load(string2)
+        else:
+            self.ask_n_parties()
+            self.init_player()
+
+    def load(self, name):
+        game_data = get_game_data(name)
+        self.parties_totales = game_data.get_n_parties
+        self.init_player()
+
+        for i in range(2):
+            j : stat = game_data.get_joueur(i+1)
+            j_out : stat = self.list_joueurs[i]
+            j_out.set_reflexion_time(j.get_reflexion_time())
+            j_out.set_partie_rt(j.get_partie_reflexion_time())
+            j_out.set_total_rt(j.get_total_reflexion_times())
+            if j_out.get_type()=="MinMax":
+                j_out.set_prof(j.get_prof())
+            self.list_joueurs[i] = j_out
+
+        self.v
+
     def ask_n_parties(self):
         "On demande le nombre de parties à jouer"
         string = input(" (défaut : 1) : ")
@@ -160,6 +186,10 @@ class Game:
             print(f"Pièce à jouer : {piece}")
         self.afficher_plateau()
         self.afficher_pioche()
+
+    def init_launch(self):
+        self.parties_restantes = self.parties_totales
+        self.wind = [0,0]
 
     def game_launch(self):
         """ Lancement du jeu """

@@ -167,3 +167,5 @@ def obtenir_mat(stri, typ):
         else:
             elem += letter
     return m
+
+
