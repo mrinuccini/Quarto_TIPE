@@ -33,27 +33,31 @@ class Game:
         else:
             self.ask_n_parties()
             self.init_player()
+            self.init_launch()
 
     def load(self, name):
         game_data = get_game_data(name)
-        self.parties_totales = game_data.get_n_parties
+        self.parties_totales = game_data.get_n_parties()
         self.init_player()
 
         for i in range(2):
             j : stat = game_data.get_joueur(i+1)
-            j_out : stat = self.list_joueurs[i]
-            j_out.set_reflexion_time(j.get_reflexion_time())
-            j_out.set_partie_rt(j.get_partie_reflexion_time())
-            j_out.set_total_rt(j.get_total_reflexion_times())
+            j_out : Joueur = self.list_joueurs[i]
+            j_out.stat.set_reflexion_time(j.get_reflexion_time())
+            j_out.stat.set_partie_rt(j.get_partie_reflexion_time())
+            j_out.stat.set_total_rt(j.get_total_reflexion_times())
             if j_out.get_type()=="MinMax":
-                j_out.set_prof(j.get_prof())
+                j_out.stat.set_prof(j.get_prof())
             self.list_joueurs[i] = j_out
 
-        self.v
+        self.max_tour = game_data.get_max_tour()
+        self.wins = game_data.get_victoires()
+        self.nulles = game_data.get_n_parties_nulles()
+        self.parties_restantes = self.parties_totales - self.wins[0] - self.wins[1] - self.nulles
 
     def ask_n_parties(self):
         "On demande le nombre de parties à jouer"
-        string = input(" (défaut : 1) : ")
+        string = input("Nombre de parties (défaut : 1) : ")
         if string == "":
             string = "1"
         self.parties_totales = int(string)
@@ -189,17 +193,14 @@ class Game:
 
     def init_launch(self):
         self.parties_restantes = self.parties_totales
-        self.wind = [0,0]
+        self.wins = [0,0]
+        self.nulles = 0
+        self.max_tour = 0
 
     def game_launch(self):
         """ Lancement du jeu """
-        i = 1
-        self.parties_restantes = self.parties_totales
-        self.wins = [0,0]
-        self.reflexion_times = [[], []] #Temps de réflexion par partie
-        self.sum_reflexion_times = [0,0]
-        self.max_tour = 0
-
+        i = self.parties_totales-self.parties_restantes+1
+        
         while self.parties_restantes > 0:
             
             print(f"PARTIE {i}/{self.parties_totales}\n" + "-"*9 + ("\n" if enable_print else ""))
@@ -208,9 +209,8 @@ class Game:
             self.max_tour = max(self.max_tour, nb_tour)
             if winner != -1:
                 self.wins[winner] += 1
-            for i2 in range(2):
-                self.reflexion_times[i2] += [self.list_joueurs[i2].reflexion_time]
-                self.sum_reflexion_times[i2] += self.list_joueurs[i2].reflexion_time
+            else:
+                self.nulles += 1
             
             if write_in_game==True:
                 self.write()
@@ -225,7 +225,7 @@ class Game:
         "Écrit le fichier des résultats de la simulation"
         f = open(self.name+".csv", "w")
         f.write(f"Nombre de parties total, {self.parties_totales}\n")
-        f.write(f"Nombre de parties nulles, {self.parties_totales - self.wins[0] - self.wins[1]}\n")
+        f.write(f"Nombre de parties nulles, {self.nulles}\n")
         f.write(f"Nombre de tour max, {self.max_tour}\n")
 
         for i in range(2):
