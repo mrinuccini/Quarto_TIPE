@@ -84,7 +84,7 @@ def sort_move(move: tuple, plateau: Plateau, pioche: dict, coup_prioritaire: Mov
     else:
         return 0
 
-def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: int, f_eval, alpha: int, beta: int, zb: Zobrist, t_start: float, t_max: float, maximise: bool=True) -> tuple:
+def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, piece_a_placer_id: int, max_depth: int, f_eval, alpha: int, beta: int, zb: Zobrist, t_start: float, t_max: float, maximise: bool=True) -> tuple:
     """
         Applique l'algorithme minmax à l'arbre de racine node
 
@@ -117,7 +117,7 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
                 piece_id = move[1]
                 piece = move[2]
 
-                plateau.placer_piece_1D(case, piece)
+                plateau.placer_piece_1D(case, piece_a_placer)
 
                 if plateau.verifier_alignements():
                     plateau.placer_piece_1D(case, None)
@@ -130,10 +130,10 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
                 del pioche[piece_id]
                 if enable_zobrist: hash_sauvegarde = list(zb.hash_actuels)
                 piece_en_main_sauvegarde = zb.piece_en_main
-                if enable_zobrist: zb.jouer_coup(case, piece_id)
+                if enable_zobrist: zb.jouer_coup(case, piece_a_placer_id)
 
                 try:
-                    f_score, _ = minimax(plateau, pioche, piece, (max_depth - 1), f_eval, max(alpha, max_eval), beta, zb, t_start, t_max, maximise=False)
+                    f_score, _ = minimax(plateau, pioche, piece, piece_id, (max_depth - 1), f_eval, max(alpha, max_eval), beta, zb, t_start, t_max, maximise=False)
 
                     if f_score > max_eval:
                         max_eval = f_score
@@ -164,7 +164,7 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
                 piece_id = move[1]
                 piece = move[2]
 
-                plateau.placer_piece_1D(case, piece)
+                plateau.placer_piece_1D(case, piece_a_placer)
 
                 if plateau.verifier_alignements():
                     plateau.placer_piece_1D(case, None)
@@ -177,10 +177,10 @@ def minimax(plateau: Plateau, pioche: dict, piece_a_placer: Piece, max_depth: in
                 del pioche[piece_id]
                 if enable_zobrist: hash_sauvegarde = list(zb.hash_actuels)
                 piece_en_main_sauvegarde = zb.piece_en_main
-                if enable_zobrist: zb.jouer_coup(case, piece_id)
+                if enable_zobrist: zb.jouer_coup(case, piece_a_placer_id)
 
                 try:
-                    f_score, _ = minimax(plateau, pioche, piece, (max_depth - 1), f_eval, alpha, min(beta, min_eval), zb, t_start, t_max, maximise=True)
+                    f_score, _ = minimax(plateau, pioche, piece, piece_id, (max_depth - 1), f_eval, alpha, min(beta, min_eval), zb, t_start, t_max, maximise=True)
 
                     if f_score < min_eval:
                         min_eval = f_score

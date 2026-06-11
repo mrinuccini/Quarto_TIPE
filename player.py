@@ -10,7 +10,7 @@ import time
 import pickle
 import os
 
-enable_print = False
+enable_print = True
 
 TYPES = ["Humain", "MonteCarlo", "MinMax", "RandomBot", "Mix"]
 
@@ -54,7 +54,7 @@ class Joueur:
         self.reflexion_time = 0
         self.stat.deb_partie()
 
-    def debut_tour(self, plateau: Plateau, pioche: list, piece_a_jouer: Piece, zb: Zobrist) -> None:
+    def debut_tour(self, plateau: Plateau, pioche: dict, piece_a_jouer: Piece, piece_a_jouer_id: int,  zb: Zobrist) -> None:
         """
             Utilisé au début du tour pour les IA afin de générer les arbres de jeux, etc...
         """
@@ -71,7 +71,7 @@ class Joueur:
 
                         try:
                             for profondeur in range(1, 16):
-                                score, meilleur_coup_profondeur = minimax(plateau, pioche, piece_a_jouer, profondeur, evaluate1, float("-inf"), float("inf"), zb, t1, 45, maximise=True)
+                                score, meilleur_coup_profondeur = minimax(plateau, pioche, piece_a_jouer, piece_a_jouer_id, profondeur, evaluate1, float("-inf"), float("inf"), zb, t1, 45, maximise=True)
                                 
                                 if meilleur_coup_profondeur is not None:
                                     meilleur_coup_global = meilleur_coup_profondeur

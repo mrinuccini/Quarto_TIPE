@@ -1,6 +1,6 @@
 from load import *
 
-enable_print = False
+enable_print = True
 write_in_game = True #Si on modifie le fichier resultat.csv en cours de jeu
 
 class Game:
@@ -213,7 +213,7 @@ class Game:
         Affichage des informations du premier tour (choix de la pièce uniquement)
         """
         if enable_print: print("/"*80 + f"\nTour du Joueur {self.joueur_idx+1}\n" + "-"*17)
-        self.list_joueurs[self.joueur_idx].debut_tour(self.plateau, self.pioche, None, self.zb)
+        self.list_joueurs[self.joueur_idx].debut_tour(self.plateau, self.pioche, None, None, self.zb)
         self.afficher_plateau()
         self.afficher_pioche()
 
@@ -229,7 +229,7 @@ class Game:
         if piece_idx != None: del self.pioche[piece_idx]
 
         if enable_print: print("/"*80 + f"\nTour du Joueur {self.joueur_idx+1}\n" + "-"*17)
-        self.list_joueurs[self.joueur_idx].debut_tour(self.plateau, self.pioche, piece, self.zb)
+        self.list_joueurs[self.joueur_idx].debut_tour(self.plateau, self.pioche, piece, piece_idx, self.zb)
         if piece_idx != None and enable_print:
             print(f"Pièce à jouer : {piece}")
         self.afficher_plateau()
