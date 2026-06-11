@@ -8,25 +8,32 @@ write_in_game = True #Si on modifie le fichier resultat.csv en cours de jeu
 
 class Game:
     #Instanciation du jeux
-    def __init__(self, n=1, x=4, y=4):
+    def __init__(self, x=4, y=4):
         """Paramètres:
                 n : entier naturel non nul, nombre de parties à jouer
                 x : entier naturel non nul, nombre de colonnes du plateau
                 y : entier naturel non nul, nombre de lignes du plateau
         """
         #Assertions
-        assert(type(n)==int and n>0)
         assert(type(x)==type(y)==int and x>0 and y>0)
 
         self.zb = Zobrist()
-        self.parties_totales = n #Nombre de parties totales
         self.x, self.y = x, y #Nombre de colonnes et de lignes du plateau
         self.ask_name()
+        self.ask_n_parties()
         self.init_player()
         self.game_launch() #On lance le jeu
         self.write() #On écrit le fichier des résultats
         
+    def ask_n_parties(self):
+        "On demande le nombre de parties à jouer"
+        string = input(" (défaut : 1) : ")
+        if string == "":
+            string = "1"
+        self.parties_totales = int(string)
+
     def ask_name(self):
+        "On demande dans quel fichier sauvegarder"
         string = input("Quel nom de fichier où sauvegarder (défaut : resultats) : ")
         if string == "":
             string = "resultats"
