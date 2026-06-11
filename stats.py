@@ -26,7 +26,10 @@ def obtenir_rt_au_tour(game_data:Game_data, jidx, i):
     n = game_data.get_n_parties()
     s = 0
     n2 = 0
-    for k in range(n):
+
+    m = game_data.get_joueur(1).get_reflexion_time()
+
+    for k in range(len(m)):
         if i<len(game_data.get_joueur(jidx).get_reflexion_time()[k]):
             s += game_data.get_joueur(jidx).get_reflexion_time()[k][i]
             n2 += 1
@@ -164,7 +167,6 @@ def affich_vict(game_data:Game_data, j1_string="", j2_string="", precision=""):
     plt.show()
 
 
-game_data = get_game_data()
-
-affich_rt_moyen(game_data, j1_string="J1 MonteCarlo (n_simul=5000)", j2_string="J2 MinMax")
-affich_vict(game_data, "MonteCarlo", "MinMax")
+game_data = get_game_data("n_simul")
+affich_rt_moyen(game_data, j1_string="J1 MonteCarlo (n=2000)", j2_string="J2 MonteCarlo (n=100)")
+affich_vict(game_data, "MonteCarlo, (n=2000)", "MonteCarlo, (n=100)")

@@ -1,6 +1,6 @@
 from load import *
 
-enable_print = True
+enable_print = False
 write_in_game = True #Si on modifie le fichier resultat.csv en cours de jeu
 
 class Game:
