@@ -149,6 +149,13 @@ class Joueur:
             return i
         
         elif self.type == "RandomBot":
+            for place in plateau.recuperer_cases_vides():
+                plateau.placer_piece_1D(place, piece_idx)
+                if plateau.verifier_alignements():
+                    pieces = list(pioche.keys())
+                    plateau.placer_piece_1D(place, None)
+                    return place
+                plateau.placer_piece_1D(place, None)
             i = random.choice(plateau.recuperer_cases_vides())
             return i
         
