@@ -213,11 +213,11 @@ class Game:
         Affichage des informations du premier tour (choix de la pièce uniquement)
         """
         if enable_print: print("/"*80 + f"\nTour du Joueur {self.joueur_idx+1}\n" + "-"*17)
-        self.list_joueurs[self.joueur_idx].debut_tour(self.plateau, self.pioche, None, None, self.zb)
+        self.list_joueurs[self.joueur_idx].debut_tour(self.plateau, self.pioche, None, None, self.zb, 1)
         self.afficher_plateau()
         self.afficher_pioche()
 
-    def debut_tour(self, piece_idx=None):
+    def debut_tour(self, piece_idx=None, tour=0):
         """Affichage des informations de début de tour
         Paramètre :
             piece_idx : indice de la pièce à jouer du joueur dans la pioche 
@@ -229,7 +229,7 @@ class Game:
         if piece_idx != None: del self.pioche[piece_idx]
 
         if enable_print: print("/"*80 + f"\nTour du Joueur {self.joueur_idx+1}\n" + "-"*17)
-        self.list_joueurs[self.joueur_idx].debut_tour(self.plateau, self.pioche, piece, piece_idx, self.zb)
+        self.list_joueurs[self.joueur_idx].debut_tour(self.plateau, self.pioche, piece, piece_idx, self.zb,tour)
         if piece_idx != None and enable_print:
             print(f"Pièce à jouer : {piece}")
         self.afficher_plateau()
@@ -288,7 +288,7 @@ class Game:
 
             if enable_print: print("\n")
 
-            self.debut_tour(piece_idx) #Affichage des informations
+            self.debut_tour(piece_idx, nb_tour) #Affichage des informations
 
             place_idx = self.ask_place(piece_idx) #Choix du placement de la pièce
             self.place(place_idx, piece) #On place la pièce

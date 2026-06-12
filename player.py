@@ -54,7 +54,7 @@ class Joueur:
         self.reflexion_time = 0
         self.stat.deb_partie()
 
-    def debut_tour(self, plateau: Plateau, pioche: dict, piece_a_jouer: Piece, piece_a_jouer_id: int,  zb: Zobrist) -> None:
+    def debut_tour(self, plateau: Plateau, pioche: dict, piece_a_jouer: Piece, piece_a_jouer_id: int,  zb: Zobrist, tour:int) -> None:
         """
             Utilisé au début du tour pour les IA afin de générer les arbres de jeux, etc...
         """
@@ -82,7 +82,13 @@ class Joueur:
                             print("Temps écoulé !")
                         self.stat.push_prof(profondeur) #On rajoute la profondeur dans la liste de profondeurs
                 case "MonteCarlo":
-                    scores, self.best_moves = mcts(RootState(plateau, pioche, piece_a_jouer), self.c, self.n_simul)
+                    if tour != 1:
+                        scores, self.best_moves = mcts(RootState(plateau, pioche, piece_a_jouer), self.c, self.n_simul)
+                    else:
+                        i = random.choice(list(pioche.keys()))
+                        i2 = random.choice(plateau.recuperer_cases_vides())
+                        self.best_moves = [Move(i2, i)]
+                        scores = [0]
                     self.best_move = self.best_moves[0]
                     score = scores[0]
                 case "Mix":

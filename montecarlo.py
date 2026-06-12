@@ -143,6 +143,15 @@ def backpropagate(node:Node_MCTS, result):
 def mcts(root_state:RootState, c, n_simul):
     "Algorithme de Monte Carlo"
     root = Node_MCTS(None, None)
+
+    for place in root_state.plateau.recuperer_cases_vides():
+        root_state.plateau.placer_piece_1D(place, root_state.piece_a_jouer)
+        if root_state.plateau.verifier_alignements():
+            pieces = list(root_state.pioche.keys())
+            root_state.plateau.placer_piece_1D(place, None)
+            return [1.0], [Move(place, pieces[0])]
+        root_state.plateau.placer_piece_1D(place, None)
+
     for _ in range(n_simul):
         # Save state before expansion
         state_backup = root_state.cloner()
