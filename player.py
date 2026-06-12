@@ -129,7 +129,7 @@ class Joueur:
             else:
                 return self.best_move.get_piece_idx()
 
-    def choisir_place(self, plateau, pioche, piece_idx):
+    def choisir_place(self, plateau, pioche, piece_idx, piece):
         """ Choix du placement de la pièce selon le type du joueur """
         #Joueur humain
         if self.type == "Humain":
@@ -150,9 +150,8 @@ class Joueur:
         
         elif self.type == "RandomBot":
             for place in plateau.recuperer_cases_vides():
-                plateau.placer_piece_1D(place, piece_idx)
+                plateau.placer_piece_1D(place, piece)
                 if plateau.verifier_alignements():
-                    pieces = list(pioche.keys())
                     plateau.placer_piece_1D(place, None)
                     return place
                 plateau.placer_piece_1D(place, None)

@@ -183,9 +183,9 @@ class Game:
         self.zb.choisir_piece(i)
         return i
 
-    def ask_place(self, piece_idx):
+    def ask_place(self, piece_idx, piece):
         "Choix du placement de la pièce sur le plateau"
-        i = self.list_joueurs[self.joueur_idx].choisir_place(self.plateau, self.pioche, piece_idx)
+        i = self.list_joueurs[self.joueur_idx].choisir_place(self.plateau, self.pioche, piece_idx, piece)
         self.zb.placer_piece(i)
         return i
 
@@ -290,7 +290,7 @@ class Game:
 
             self.debut_tour(piece_idx, nb_tour) #Affichage des informations
 
-            place_idx = self.ask_place(piece_idx) #Choix du placement de la pièce
+            place_idx = self.ask_place(piece_idx, piece) #Choix du placement de la pièce
             self.place(place_idx, piece) #On place la pièce
             self.check() #On vérifie s'il y a victoire ou égalité
 

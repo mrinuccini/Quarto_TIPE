@@ -49,9 +49,19 @@ def affich_rt_moyen(game_data:Game_data, title = "Temps de réflexion moyen selo
     assert(type(j1_string)==type(j2_string)==type(title)==type(precision)==str)
 
     if j1_string == "":
-        j1_string = f"J1 {game_data.get_type()[0]}"
+        typ = game_data.get_type()[0]
+        j :stat= game_data.get_joueur(1)
+        if typ == "MonteCarlo":
+            j1_string = f"J1 {typ} (c={j.get_c()},\nn_simul={j.get_n_simul()})"
+        else:
+            j1_string = f"J1 {typ}"
     if j2_string == "":
-        j2_string = f"J2 {game_data.get_type()[1]}"
+        typ = game_data.get_type()[1]
+        j :stat= game_data.get_joueur(2)
+        if typ == "MonteCarlo":
+            j2_string = f"J2 {typ} (c={j.get_c()},\nn_simul={j.get_n_simul()})"
+        else:
+            j2_string = f"J2 {typ}"
 
     max_tour = game_data.get_max_tour()
     J1 = []
@@ -155,9 +165,19 @@ def affich_vict(game_data:Game_data, j1_string="", j2_string="", precision=""):
     nul = game_data.get_n_parties_nulles()
 
     if j1_string == "":
-        j1_string = f"J1 {game_data.get_type()[0]}"
+        typ = game_data.get_type()[0]
+        j :stat= game_data.get_joueur(1)
+        if typ == "MonteCarlo":
+            j1_string = f"J1 {typ} (c={j.get_c()},\nn_simul={j.get_n_simul()})"
+        else:
+            j1_string = f"J1 {typ}"
     if j2_string == "":
-        j2_string = f"J2 {game_data.get_type()[1]}"
+        typ = game_data.get_type()[1]
+        j :stat= game_data.get_joueur(2)
+        if typ == "MonteCarlo":
+            j2_string = f"J2 {typ} (c={j.get_c()},\nn_simul={j.get_n_simul()})"
+        else:
+            j2_string = f"J2 {typ}"
 
     x = ["Nb Victoires de J1\n"+j1_string,"Nb Victoires de J2\n"+j2_string, "Nb Parties Nulles"]
     y = [n1, n2, nul]
@@ -167,6 +187,11 @@ def affich_vict(game_data:Game_data, j1_string="", j2_string="", precision=""):
     plt.show()
 
 
-game_data = get_game_data("n_simul")
-affich_rt_moyen(game_data, j1_string="J1 MonteCarlo (n=2000)", j2_string="J2 MonteCarlo (n=100)")
-affich_vict(game_data, "MonteCarlo, (n=2000)", "MonteCarlo, (n=100)")
+string = input("nom du fichier (défaut:resultats) : ")
+game_data = get_game_data(string)
+affich_rt_moyen(game_data)
+affich_vict(game_data)
+
+for i in range(2):
+    if (game_data.get_type()[i]=="MinMax"):
+        affich_prof(game_data, i+1)
